@@ -17,7 +17,7 @@ public class GuiHelper {
     }
 
     public static void showMessageDialog(
-            @Nullable Project project, @NotNull String message, @NotNull String title, @Nullable Icon icon) {
+            @Nullable Project project, @Nullable String message, @NotNull String title, @Nullable Icon icon) {
         Messages.showMessageDialog(project, message, title, icon);
     }
 

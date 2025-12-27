@@ -8,7 +8,7 @@ import org.jetbrains.annotations.VisibleForTesting;
 import pl.mjedynak.idea.plugins.builder.renderer.ActionCellRenderer;
 
 public abstract class AbstractPopupListFactory {
-    private ActionCellRenderer actionCellRenderer;
+    private @Nullable ActionCellRenderer actionCellRenderer;
 
     @NotNull
     public JList<?> getPopupList() {
