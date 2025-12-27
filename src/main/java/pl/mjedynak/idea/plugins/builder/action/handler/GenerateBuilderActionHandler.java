@@ -1,24 +1,33 @@
 package pl.mjedynak.idea.plugins.builder.action.handler;
 
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import javax.swing.JList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import pl.mjedynak.idea.plugins.builder.action.GoToBuilderAdditionalAction;
 import pl.mjedynak.idea.plugins.builder.action.RegenerateBuilderAdditionalAction;
 import pl.mjedynak.idea.plugins.builder.factory.GenerateBuilderPopupListFactory;
 import pl.mjedynak.idea.plugins.builder.gui.displayer.GenerateBuilderPopupDisplayer;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
-public class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
+@Service(Service.Level.PROJECT)
+public final class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
 
-    public GenerateBuilderActionHandler(
+    public GenerateBuilderActionHandler(Project project) {
+        super(new GenerateBuilderPopupDisplayer(), new GenerateBuilderPopupListFactory(), null);
+    }
+
+    @VisibleForTesting
+    GenerateBuilderActionHandler(
             GenerateBuilderPopupDisplayer popupDisplayer,
             GenerateBuilderPopupListFactory popupListFactory,
-            DisplayChoosers displayChoosersRunnable) {
-        super(popupDisplayer, popupListFactory, displayChoosersRunnable);
+            DisplayChoosers displayChoosers) {
+        super(popupDisplayer, popupListFactory, displayChoosers);
     }
 
     @Override
