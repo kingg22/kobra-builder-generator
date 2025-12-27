@@ -26,10 +26,10 @@ public class PsiFieldsForBuilderFactory {
         List<PsiField> psiFieldsFoundInSetters = Lists.newArrayList();
         for (PsiElementClassMember<?> psiElementClassMember : psiElementClassMembers) {
             PsiElement psiElement = psiElementClassMember.getPsiElement();
-            if (psiElement instanceof PsiField) {
-                allSelectedPsiFields.add((PsiField) psiElement);
-                if (PsiFieldVerifier.isSetInSetterMethod((PsiField) psiElement, psiClass)) {
-                    psiFieldsFoundInSetters.add((PsiField) psiElement);
+            if (psiElement instanceof PsiField psiField) {
+                allSelectedPsiFields.add(psiField);
+                if (PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass)) {
+                    psiFieldsFoundInSetters.add(psiField);
                 }
             }
         }
