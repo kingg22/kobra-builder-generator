@@ -25,16 +25,42 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.mockito:mockito-junit-jupiter:5.10.0")
     testImplementation("org.assertj:assertj-core:3.25.3")
-    testImplementation("org.springframework:spring-test:6.1.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 intellijPlatform {
     pluginConfiguration {
+        version.set(project.version.toString())
         ideaVersion {
             sinceBuild.set("233.11799.241")
-            untilBuild.set("")
+        }
+    }
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+}
+
+intellijPlatformTesting {
+    runIde {
+        register("runIdeForUiTests") {
+            task {
+                jvmArgumentProviders +=
+                    CommandLineArgumentProvider {
+                        listOf(
+                            "-Drobot-server.port=8082",
+                            "-Dide.mac.message.dialogs.as.sheets=false",
+                            "-Djb.privacy.policy.text=<!--999.999-->",
+                            "-Djb.consents.confirmation.enabled=false",
+                        )
+                    }
+            }
+
+            plugins {
+                robotServerPlugin()
+            }
         }
     }
 }
