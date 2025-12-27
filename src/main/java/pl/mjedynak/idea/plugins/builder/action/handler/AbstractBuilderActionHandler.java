@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import pl.mjedynak.idea.plugins.builder.factory.AbstractPopupListFactory;
 import pl.mjedynak.idea.plugins.builder.finder.BuilderFinder;
 import pl.mjedynak.idea.plugins.builder.gui.displayer.AbstractPopupDisplayer;
@@ -17,35 +18,39 @@ import pl.mjedynak.idea.plugins.builder.verifier.BuilderVerifier;
 
 public abstract class AbstractBuilderActionHandler extends EditorActionHandler {
 
-    protected @NotNull AbstractPopupDisplayer popupDisplayer;
-    protected @NotNull AbstractPopupListFactory popupListFactory;
-    protected @NotNull DisplayChoosers displayChoosers;
+    protected final @NotNull AbstractPopupDisplayer popupDisplayer;
+    protected final @NotNull AbstractPopupListFactory popupListFactory;
+    protected DisplayChoosers displayChoosers;
+    private final boolean reInitDisplayChoosers;
 
     public AbstractBuilderActionHandler(
+            @NotNull AbstractPopupDisplayer popupDisplayer, @NotNull AbstractPopupListFactory popupListFactory) {
+        this.popupDisplayer = popupDisplayer;
+        this.popupListFactory = popupListFactory;
+        this.reInitDisplayChoosers = true;
+    }
+
+    @VisibleForTesting
+    AbstractBuilderActionHandler(
             @NotNull AbstractPopupDisplayer popupDisplayer,
             @NotNull AbstractPopupListFactory popupListFactory,
-            @NotNull DisplayChoosers displayChoosers) {
+            DisplayChoosers displayChoosers) {
         this.popupDisplayer = popupDisplayer;
         this.popupListFactory = popupListFactory;
         this.displayChoosers = displayChoosers;
+        this.reInitDisplayChoosers = false;
     }
 
+    @SuppressWarnings("NullAway.Init")
     @Override
     public final void doExecute(@NotNull Editor editor, @Nullable Caret caret, @Nullable DataContext dataContext) {
         Project project = dataContext == null ? editor.getProject() : dataContext.getData(CommonDataKeys.PROJECT);
         if (project == null) return;
         PsiClass psiClassFromEditor = PsiHelper.getPsiClassFromEditor(editor, project);
         if (psiClassFromEditor != null) {
-            prepareDisplayChoosers(editor, psiClassFromEditor, project);
+            if (reInitDisplayChoosers) displayChoosers = new DisplayChoosers(psiClassFromEditor, project, editor);
             forwardToSpecificAction(editor, psiClassFromEditor, dataContext);
         }
-    }
-
-    private void prepareDisplayChoosers(
-            @NotNull Editor editor, @NotNull PsiClass psiClassFromEditor, @NotNull Project project) {
-        displayChoosers.setEditor(editor);
-        displayChoosers.setProject(project);
-        displayChoosers.setPsiClassFromEditor(psiClassFromEditor);
     }
 
     private void forwardToSpecificAction(
@@ -59,7 +64,7 @@ public abstract class AbstractBuilderActionHandler extends EditorActionHandler {
         }
     }
 
-    private PsiClass findClassToGo(PsiClass psiClassFromEditor, boolean isBuilder) {
+    private @Nullable PsiClass findClassToGo(PsiClass psiClassFromEditor, boolean isBuilder) {
         if (isBuilder) {
             return BuilderFinder.findClassForBuilder(psiClassFromEditor);
         }

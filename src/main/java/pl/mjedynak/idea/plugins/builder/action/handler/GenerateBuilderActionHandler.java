@@ -16,7 +16,7 @@ import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 public class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
 
     public GenerateBuilderActionHandler() {
-        super(new GenerateBuilderPopupDisplayer(), new GenerateBuilderPopupListFactory(), new DisplayChoosers());
+        super(new GenerateBuilderPopupDisplayer(), new GenerateBuilderPopupListFactory());
     }
 
     @VisibleForTesting
