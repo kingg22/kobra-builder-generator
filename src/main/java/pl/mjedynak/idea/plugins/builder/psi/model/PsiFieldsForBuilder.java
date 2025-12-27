@@ -5,37 +5,20 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import java.util.List;
 
-public class PsiFieldsForBuilder {
-
-    private final List<PsiField> psiFieldsForSetters;
-    private final List<PsiField> psiFieldsForConstructor;
-    private final List<PsiField> allSelectedPsiFields;
-    private final PsiMethod bestConstructor;
+public record PsiFieldsForBuilder(
+        List<PsiField> fieldsForSetters,
+        List<PsiField> fieldsForConstructor,
+        List<PsiField> allSelectedFields,
+        PsiMethod bestConstructor) {
 
     public PsiFieldsForBuilder(
-            List<PsiField> psiFieldsForSetters,
-            List<PsiField> psiFieldsForConstructor,
-            List<PsiField> allSelectedPsiFields,
+            List<PsiField> fieldsForSetters,
+            List<PsiField> fieldsForConstructor,
+            List<PsiField> allSelectedFields,
             PsiMethod bestConstructor) {
-        this.psiFieldsForSetters = ImmutableList.copyOf(psiFieldsForSetters);
-        this.psiFieldsForConstructor = ImmutableList.copyOf(psiFieldsForConstructor);
-        this.allSelectedPsiFields = ImmutableList.copyOf(allSelectedPsiFields);
+        this.fieldsForSetters = ImmutableList.copyOf(fieldsForSetters);
+        this.fieldsForConstructor = ImmutableList.copyOf(fieldsForConstructor);
+        this.allSelectedFields = ImmutableList.copyOf(allSelectedFields);
         this.bestConstructor = bestConstructor;
-    }
-
-    public List<PsiField> getFieldsForSetters() {
-        return psiFieldsForSetters;
-    }
-
-    public List<PsiField> getFieldsForConstructor() {
-        return psiFieldsForConstructor;
-    }
-
-    public List<PsiField> getAllSelectedFields() {
-        return allSelectedPsiFields;
-    }
-
-    public PsiMethod getBestConstructor() {
-        return bestConstructor;
     }
 }
