@@ -7,7 +7,8 @@ import org.jetbrains.annotations.NotNull;
 public class GoToBuilderAdditionalAction extends AbstractBuilderAdditionalAction {
 
     private static final String TEXT = "Go to builder...";
-    private static final Icon ICON = IconLoader.getIcon("/actions/intentionBulb.png");
+    private static final Icon ICON =
+            IconLoader.getIcon("/actions/intentionBulb.png", GoToBuilderAdditionalAction.class);
 
     @NotNull
     @Override

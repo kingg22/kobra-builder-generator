@@ -7,7 +7,8 @@ import org.jetbrains.annotations.NotNull;
 public class RegenerateBuilderAdditionalAction extends AbstractBuilderAdditionalAction {
 
     private static final String TEXT = "Regenerate builder...";
-    private static final Icon ICON = IconLoader.getIcon("/actions/intentionBulb.png");
+    private static final Icon ICON =
+            IconLoader.getIcon("/actions/intentionBulb.png", RegenerateBuilderAdditionalAction.class);
 
     @NotNull
     @Override

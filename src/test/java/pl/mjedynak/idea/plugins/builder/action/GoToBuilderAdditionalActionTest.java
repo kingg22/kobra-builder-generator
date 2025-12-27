@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 public class GoToBuilderAdditionalActionTest {
 
     private static final String TEXT = "Go to builder...";
-    private static final Icon ICON = IconLoader.getIcon("/actions/intentionBulb.png");
+    private static final Icon ICON =
+            IconLoader.getIcon("/actions/intentionBulb.png", GoToBuilderAdditionalAction.class);
 
     private GoToBuilderAdditionalAction action;
 

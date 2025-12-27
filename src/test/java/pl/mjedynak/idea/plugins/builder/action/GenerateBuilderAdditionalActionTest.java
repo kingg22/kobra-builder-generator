@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 public class GenerateBuilderAdditionalActionTest {
 
     private static final String TEXT = "Create New Builder...";
-    private static final Icon ICON = IconLoader.getIcon("/actions/intentionBulb.png");
+    private static final Icon ICON =
+            IconLoader.getIcon("/actions/intentionBulb.png", GenerateBuilderAdditionalAction.class);
 
     private GenerateBuilderAdditionalAction action;
 

@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 public class RegenerateBuilderAdditionalActionTest {
 
     private static final String TEXT = "Regenerate builder...";
-    private static final Icon ICON = IconLoader.getIcon("/actions/intentionBulb.png");
+    private static final Icon ICON =
+            IconLoader.getIcon("/actions/intentionBulb.png", RegenerateBuilderAdditionalAction.class);
 
     private RegenerateBuilderAdditionalAction action;
 
