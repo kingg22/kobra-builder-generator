@@ -9,7 +9,6 @@ import pl.mjedynak.idea.plugins.builder.settings.CodeStyleSettings;
 
 public class ButMethodCreator {
 
-    private final CodeStyleSettings codeStyleSettings = new CodeStyleSettings();
     private final PsiElementFactory elementFactory;
 
     public ButMethodCreator(PsiElementFactory elementFactory) {
@@ -45,9 +44,9 @@ public class ButMethodCreator {
             text.append(method.getName()).append("().");
         } else {
             String parameterName = parameterList.getParameters()[0].getName();
-            String parameterNamePrefix = codeStyleSettings.getParameterNamePrefix();
+            String parameterNamePrefix = CodeStyleSettings.PARAMETER_NAME_PREFIX;
             String parameterNameWithoutPrefix = parameterName.replaceFirst(parameterNamePrefix, "");
-            String fieldNamePrefix = codeStyleSettings.getFieldNamePrefix();
+            String fieldNamePrefix = CodeStyleSettings.FIELD_NAME_PREFIX;
             text.append(method.getName()).append("(");
             if (useSingleField) {
                 text.append(srcClassFieldName)
