@@ -22,10 +22,15 @@ import pl.mjedynak.idea.plugins.builder.writer.BuilderWriter;
 
 public class DisplayChoosers {
 
-    private @NotNull PsiClass psiClassFromEditor;
-    private @NotNull Project project;
-    private @NotNull Editor editor;
-    private final @NotNull BuilderWriter builderWriter = new BuilderWriter();
+    private final @NotNull PsiClass psiClassFromEditor;
+    private final @NotNull Project project;
+    private final @NotNull Editor editor;
+
+    public DisplayChoosers(@NotNull PsiClass psiClassFromEditor, @NotNull Project project, @NotNull Editor editor) {
+        this.psiClassFromEditor = psiClassFromEditor;
+        this.project = project;
+        this.editor = editor;
+    }
 
     public void run(@Nullable PsiClass existingBuilder) {
         CreateBuilderDialog createBuilderDialog = showDialog(existingBuilder);
@@ -57,7 +62,7 @@ public class DisplayChoosers {
             String methodPrefix,
             @NotNull MemberChooser<PsiElementClassMember<?>> memberChooserDialog,
             CreateBuilderDialog createBuilderDialog,
-            PsiClass existingBuilder) {
+            @Nullable PsiClass existingBuilder) {
         if (memberChooserDialog.isOK()) {
             List<PsiElementClassMember<?>> selectedElements = memberChooserDialog.getSelectedElements();
             if (selectedElements == null) return;
@@ -74,11 +79,11 @@ public class DisplayChoosers {
                     createBuilderDialog.hasButMethod(),
                     createBuilderDialog.useSingleField(),
                     createBuilderDialog.hasAddCopyConstructor());
-            builderWriter.writeBuilder(context, existingBuilder);
+            BuilderWriter.writeBuilder(context, existingBuilder);
         }
     }
 
-    private @Nullable CreateBuilderDialog showDialog(PsiClass existingBuilder) {
+    private @Nullable CreateBuilderDialog showDialog(@Nullable PsiClass existingBuilder) {
         PsiFile file = PsiHelper.getPsiFile(editor, project);
         if (file == null) return null;
         CreateBuilderDialog dialog = CreateBuilderDialogFactory.createBuilderDialog(
@@ -90,17 +95,5 @@ public class DisplayChoosers {
     private static @NotNull List<PsiElementClassMember<?>> getFieldsToIncludeInBuilder(
             PsiClass clazz, boolean innerBuilder, boolean useSingleField, boolean hasButMethod) {
         return PsiFieldSelector.selectFieldsToIncludeInBuilder(clazz, innerBuilder, useSingleField, hasButMethod);
-    }
-
-    public void setPsiClassFromEditor(@NotNull PsiClass psiClassFromEditor) {
-        this.psiClassFromEditor = psiClassFromEditor;
-    }
-
-    public void setProject(@NotNull Project project) {
-        this.project = project;
-    }
-
-    public void setEditor(@NotNull Editor editor) {
-        this.editor = editor;
     }
 }
