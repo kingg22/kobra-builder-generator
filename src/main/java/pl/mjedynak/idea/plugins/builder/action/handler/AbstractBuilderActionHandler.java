@@ -32,8 +32,7 @@ public abstract class AbstractBuilderActionHandler extends EditorActionHandler {
 
     @Override
     public final void doExecute(@NotNull Editor editor, @Nullable Caret caret, @Nullable DataContext dataContext) {
-        if (dataContext == null) return;
-        Project project = dataContext.getData(CommonDataKeys.PROJECT);
+        Project project = dataContext == null ? editor.getProject() : dataContext.getData(CommonDataKeys.PROJECT);
         if (project == null) return;
         PsiClass psiClassFromEditor = PsiHelper.getPsiClassFromEditor(editor, project);
         if (psiClassFromEditor != null) {
@@ -50,7 +49,7 @@ public abstract class AbstractBuilderActionHandler extends EditorActionHandler {
     }
 
     private void forwardToSpecificAction(
-            @NotNull Editor editor, @NotNull PsiClass psiClassFromEditor, DataContext dataContext) {
+            @NotNull Editor editor, @NotNull PsiClass psiClassFromEditor, @Nullable DataContext dataContext) {
         boolean isBuilder = BuilderVerifier.isBuilder(psiClassFromEditor);
         PsiClass classToGo = findClassToGo(psiClassFromEditor, isBuilder);
         if (classToGo != null) {
@@ -70,10 +69,13 @@ public abstract class AbstractBuilderActionHandler extends EditorActionHandler {
     protected abstract void doActionWhenClassToGoIsFound(
             @NotNull Editor editor,
             @NotNull PsiClass psiClassFromEditor,
-            DataContext dataContext,
+            @Nullable DataContext dataContext,
             boolean isBuilder,
             @NotNull PsiClass classToGo);
 
     protected abstract void doActionWhenClassToGoIsNotFound(
-            @NotNull Editor editor, @NotNull PsiClass psiClassFromEditor, DataContext dataContext, boolean isBuilder);
+            @NotNull Editor editor,
+            @NotNull PsiClass psiClassFromEditor,
+            @Nullable DataContext dataContext,
+            boolean isBuilder);
 }

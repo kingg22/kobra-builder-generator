@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiClass;
 import javax.swing.JList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pl.mjedynak.idea.plugins.builder.action.GoToBuilderAdditionalAction;
 import pl.mjedynak.idea.plugins.builder.action.RegenerateBuilderAdditionalAction;
 import pl.mjedynak.idea.plugins.builder.factory.GenerateBuilderPopupListFactory;
@@ -24,7 +25,7 @@ public class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
     protected void doActionWhenClassToGoIsFound(
             @NotNull Editor editor,
             @NotNull PsiClass psiClassFromEditor,
-            DataContext dataContext,
+            @Nullable DataContext dataContext,
             boolean isBuilder,
             @NotNull PsiClass classToGo) {
         if (!isBuilder) {
@@ -34,13 +35,16 @@ public class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
 
     @Override
     protected void doActionWhenClassToGoIsNotFound(
-            @NotNull Editor editor, @NotNull PsiClass psiClassFromEditor, DataContext dataContext, boolean isBuilder) {
+            @NotNull Editor editor,
+            @NotNull PsiClass psiClassFromEditor,
+            @Nullable DataContext dataContext,
+            boolean isBuilder) {
         if (!isBuilder) {
             displayChoosers.run(null);
         }
     }
 
-    private void displayPopup(Editor editor, PsiClass classToGo) {
+    private void displayPopup(@NotNull Editor editor, @Nullable PsiClass classToGo) {
         JList<?> popupList = popupListFactory.getPopupList();
         popupDisplayer.displayPopupChooser(editor, popupList, () -> {
             if (popupList.getSelectedValue() instanceof GoToBuilderAdditionalAction) {

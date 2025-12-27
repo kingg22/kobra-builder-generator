@@ -59,7 +59,7 @@ public class DisplayChoosers {
             PsiDirectory targetDirectory,
             String className,
             String methodPrefix,
-            MemberChooser<PsiElementClassMember<?>> memberChooserDialog,
+            @NotNull MemberChooser<PsiElementClassMember<?>> memberChooserDialog,
             CreateBuilderDialog createBuilderDialog,
             PsiClass existingBuilder) {
         if (memberChooserDialog.isOK()) {
@@ -91,7 +91,7 @@ public class DisplayChoosers {
         return dialog;
     }
 
-    private static List<PsiElementClassMember<?>> getFieldsToIncludeInBuilder(
+    private static @NotNull List<PsiElementClassMember<?>> getFieldsToIncludeInBuilder(
             PsiClass clazz, boolean innerBuilder, boolean useSingleField, boolean hasButMethod) {
         return PsiFieldSelector.selectFieldsToIncludeInBuilder(clazz, innerBuilder, useSingleField, hasButMethod);
     }

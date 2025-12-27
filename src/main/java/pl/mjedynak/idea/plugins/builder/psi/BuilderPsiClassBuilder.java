@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import pl.mjedynak.idea.plugins.builder.settings.CodeStyleSettings;
 import pl.mjedynak.idea.plugins.builder.verifier.PsiFieldVerifier;
 import pl.mjedynak.idea.plugins.builder.writer.BuilderContext;
@@ -69,7 +70,7 @@ public class BuilderPsiClassBuilder {
         return this;
     }
 
-    private void initializeFields(BuilderContext context) {
+    private void initializeFields(@NotNull BuilderContext context) {
         JavaPsiFacade javaPsiFacade = PsiHelper.getJavaPsiFacade(context.project());
         elementFactory = javaPsiFacade.getElementFactory();
         srcClass = context.psiClassFromEditor();
@@ -144,7 +145,7 @@ public class BuilderPsiClassBuilder {
         return this;
     }
 
-    private boolean isInnerBuilder(PsiClass aClass) {
+    private boolean isInnerBuilder(@NotNull PsiClass aClass) {
         return aClass.hasModifierProperty(PsiModifier.STATIC);
     }
 
@@ -211,7 +212,7 @@ public class BuilderPsiClassBuilder {
         return builderClass;
     }
 
-    private void appendConstructor(StringBuilder buildMethodText) {
+    private void appendConstructor(@NotNull StringBuilder buildMethodText) {
         String constructorParameters = createConstructorParameters();
         buildMethodText
                 .append("new ")
@@ -221,17 +222,18 @@ public class BuilderPsiClassBuilder {
                 .append(");");
     }
 
-    private void appendSetMethodsOrAssignments(StringBuilder buildMethodText) {
+    private void appendSetMethodsOrAssignments(@NotNull StringBuilder buildMethodText) {
         appendSetMethods(buildMethodText, psiFieldsForSetters);
         if (isInnerBuilder(builderClass)) {
-            Set<PsiField> fieldsSetViaAssignment = new HashSet<PsiField>(allSelectedPsiFields);
+            Set<PsiField> fieldsSetViaAssignment = new HashSet<>(allSelectedPsiFields);
             fieldsSetViaAssignment.removeAll(psiFieldsForSetters);
             fieldsSetViaAssignment.removeAll(psiFieldsForConstructor);
             appendAssignments(buildMethodText, fieldsSetViaAssignment);
         }
     }
 
-    private void appendSetMethods(StringBuilder buildMethodText, Collection<PsiField> fieldsToBeSetViaSetter) {
+    private void appendSetMethods(
+            @NotNull StringBuilder buildMethodText, @NotNull Collection<@NotNull PsiField> fieldsToBeSetViaSetter) {
         for (PsiField psiFieldsForSetter : fieldsToBeSetViaSetter) {
             String fieldNamePrefix = CodeStyleSettings.FIELD_NAME_PREFIX;
             String fieldName = psiFieldsForSetter.getName();
@@ -247,7 +249,8 @@ public class BuilderPsiClassBuilder {
         }
     }
 
-    private void appendAssignments(StringBuilder buildMethodText, Collection<PsiField> fieldsSetViaAssignment) {
+    private void appendAssignments(
+            @NotNull StringBuilder buildMethodText, @NotNull Collection<@NotNull PsiField> fieldsSetViaAssignment) {
         for (PsiField field : fieldsSetViaAssignment) {
             buildMethodText
                     .append(srcClassFieldName)
@@ -260,7 +263,7 @@ public class BuilderPsiClassBuilder {
         }
     }
 
-    private String createConstructorParameters() {
+    private @NotNull String createConstructorParameters() {
         if (bestConstructor == null) {
             return "";
         }
@@ -282,7 +285,7 @@ public class BuilderPsiClassBuilder {
         return sb.toString();
     }
 
-    private static String getDefaultValue(PsiType type) {
+    private static @NotNull String getDefaultValue(@NotNull PsiType type) {
         if (type.equals(PsiTypes.booleanType())) {
             return "false";
         } else if (type.equals(PsiTypes.byteType())
@@ -301,7 +304,7 @@ public class BuilderPsiClassBuilder {
         return "null";
     }
 
-    private static void removeLastSemicolon(StringBuilder sb) {
+    private static void removeLastSemicolon(@NotNull StringBuilder sb) {
         if (sb.toString().endsWith(SEMICOLON)) {
             sb.deleteCharAt(sb.length() - 1);
         }
