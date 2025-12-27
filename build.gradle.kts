@@ -1,9 +1,13 @@
+import net.ltgt.gradle.errorprone.errorprone
+import net.ltgt.gradle.nullaway.nullaway
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 
 plugins {
     java
     id("org.jetbrains.intellij.platform")
     id("com.diffplug.spotless") version "8.1.0"
+    id("net.ltgt.errorprone") version "4.3.0"
+    id("net.ltgt.nullaway") version "2.3.0"
 }
 
 group = "pl.mjedynak"
@@ -21,6 +25,8 @@ dependencies {
         }
         bundledPlugin("com.intellij.java")
     }
+    errorprone("com.google.errorprone:error_prone_core:2.45.0")
+    errorprone("com.uber.nullaway:nullaway:0.12.15")
     testImplementation(platform("org.junit:junit-bom:5.14.1"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.mockito:mockito-junit-jupiter:5.10.0")
@@ -73,4 +79,33 @@ spotless {
     java {
         palantirJavaFormat()
     }
+}
+
+nullaway {
+    annotatedPackages.add("pl.mjedynak.idea.plugins.builder")
+    onlyNullMarked.set(false)
+}
+
+tasks.withType<JavaCompile> {
+    options.errorprone {
+        isEnabled.set(true)
+        allSuggestionsAsWarnings.set(true)
+        disable("RequireExplicitNullMarking")
+        nullaway {
+            error()
+            suggestSuppressions.set(true)
+            checkContracts.set(true)
+            isExhaustiveOverride.set(true)
+            knownInitializers.set(
+                listOf(
+                    "com.intellij.openapi.options.UnnamedConfigurable.createComponent",
+                    "pl.mjedynak.idea.plugins.builder.gui.CreateBuilderDialog.show",
+                    "pl.mjedynak.idea.plugins.builder.action.handler.AbstractBuilderActionHandler.doExecute",
+                ),
+            )
+        }
+    }
+}
+tasks.compileTestJava {
+    options.errorprone.isEnabled.set(false)
 }
