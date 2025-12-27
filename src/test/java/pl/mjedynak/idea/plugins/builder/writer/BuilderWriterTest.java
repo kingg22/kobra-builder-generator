@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
@@ -60,11 +59,10 @@ public class BuilderWriterTest {
                         builderWriterRunnableArgumentCaptor.capture(),
                         eq(BuilderWriter.CREATE_BUILDER_STRING),
                         eq(builderWriter));
-        assertThat(getField(builderWriterRunnableArgumentCaptor.getValue(), "builderPsiClassBuilder"))
+        assertThat(builderWriterRunnableArgumentCaptor.getValue().getBuilderPsiClassBuilder())
                 .isEqualTo(builderPsiClassBuilder);
-        assertThat(getField(builderWriterRunnableArgumentCaptor.getValue(), "context"))
-                .isEqualTo(context);
-        assertThat(getField(builderWriterRunnableArgumentCaptor.getValue(), "existingBuilder"))
+        assertThat(builderWriterRunnableArgumentCaptor.getValue().getContext()).isEqualTo(context);
+        assertThat(builderWriterRunnableArgumentCaptor.getValue().getExistingBuilder())
                 .isEqualTo(existingBuilder);
     }
 }

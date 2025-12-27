@@ -1,7 +1,6 @@
 package pl.mjedynak.idea.plugins.builder.factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 import com.intellij.ui.ExpandedItemListCellRendererWrapper;
 import com.intellij.ui.components.JBList;
@@ -28,20 +27,17 @@ public class GoToBuilderPopupListFactoryTest {
 
     @Test
     void shouldLazilyInitializeCellRenderer() {
-        // when
-        Object actionCellRenderer = getField(popupListFactory, "actionCellRenderer");
-
         // then
-        assertThat(actionCellRenderer).isNull();
+        assertThat(popupListFactory.getActionCellRenderer()).isNull();
     }
 
     @Test
     void shouldUseTheSameCellRendererForConsequentInvocations() {
         // when
         popupListFactory.getPopupList();
-        ActionCellRenderer firstRenderer = (ActionCellRenderer) getField(popupListFactory, "actionCellRenderer");
+        ActionCellRenderer firstRenderer = popupListFactory.getActionCellRenderer();
         popupListFactory.getPopupList();
-        ActionCellRenderer secondRenderer = (ActionCellRenderer) getField(popupListFactory, "actionCellRenderer");
+        ActionCellRenderer secondRenderer = popupListFactory.getActionCellRenderer();
 
         // then
         assertThat(firstRenderer).isSameAs(secondRenderer);

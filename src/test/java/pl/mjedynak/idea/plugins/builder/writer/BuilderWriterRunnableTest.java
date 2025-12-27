@@ -3,7 +3,6 @@ package pl.mjedynak.idea.plugins.builder.writer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.psi.PsiClass;
@@ -52,11 +51,10 @@ public class BuilderWriterRunnableTest {
         ArgumentCaptor<BuilderWriterComputable> builderWriterComputableArgumentCaptor =
                 ArgumentCaptor.forClass(BuilderWriterComputable.class);
         verify(application).runWriteAction(builderWriterComputableArgumentCaptor.capture());
-        assertThat(getField(builderWriterComputableArgumentCaptor.getValue(), "builderPsiClassBuilder"))
+        assertThat(builderWriterComputableArgumentCaptor.getValue().builderPsiClassBuilder())
                 .isEqualTo(builderPsiClassBuilder);
-        assertThat(getField(builderWriterComputableArgumentCaptor.getValue(), "context"))
-                .isEqualTo(context);
-        assertThat(getField(builderWriterComputableArgumentCaptor.getValue(), "existingBuilder"))
+        assertThat(builderWriterComputableArgumentCaptor.getValue().context()).isEqualTo(context);
+        assertThat(builderWriterComputableArgumentCaptor.getValue().existingBuilder())
                 .isEqualTo(existingBuilder);
     }
 }
