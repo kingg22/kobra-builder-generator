@@ -3,6 +3,7 @@ package pl.mjedynak.idea.plugins.builder.writer;
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import org.jetbrains.annotations.Nullable;
 
 public class BuilderWriterErrorRunnable implements Runnable {
 
@@ -14,16 +15,10 @@ public class BuilderWriterErrorRunnable implements Runnable {
     private final String className;
     private final String message;
 
-    public BuilderWriterErrorRunnable(Project project, String className) {
+    public BuilderWriterErrorRunnable(Project project, String className, @Nullable String message) {
         this.project = project;
         this.className = className;
-        this.message = INTENTION_ERROR_CANNOT_CREATE_CLASS_MESSAGE;
-    }
-
-    public BuilderWriterErrorRunnable(Project project, String className, String message) {
-        this.project = project;
-        this.className = className;
-        this.message = message;
+        this.message = message == null ? INTENTION_ERROR_CANNOT_CREATE_CLASS_MESSAGE : message;
     }
 
     @Override
