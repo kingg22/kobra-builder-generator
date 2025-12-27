@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pl.mjedynak.idea.plugins.builder.settings.CodeStyleSettings;
 import pl.mjedynak.idea.plugins.builder.verifier.PsiFieldVerifier;
 import pl.mjedynak.idea.plugins.builder.writer.BuilderContext;
@@ -31,46 +32,30 @@ public class BuilderPsiClassBuilder {
     private static final String AN_PREFIX = " an";
     private static final String SEMICOLON = ",";
 
-    private ButMethodCreator butMethodCreator;
-    private CopyConstructorCreator copyConstructorCreator;
-    private MethodCreator methodCreator;
+    private final ButMethodCreator butMethodCreator;
+    private final CopyConstructorCreator copyConstructorCreator;
+    private final MethodCreator methodCreator;
 
-    private PsiClass srcClass = null;
-    private String builderClassName = null;
+    private final PsiClass srcClass;
+    private final String builderClassName;
 
-    private List<PsiField> psiFieldsForSetters = null;
-    private List<PsiField> psiFieldsForConstructor = null;
-    private List<PsiField> allSelectedPsiFields = null;
-    private PsiMethod bestConstructor = null;
+    private final List<PsiField> psiFieldsForSetters;
+    private final List<PsiField> psiFieldsForConstructor;
+    private final List<PsiField> allSelectedPsiFields;
+    private final @Nullable PsiMethod bestConstructor;
 
-    private PsiClass builderClass = null;
-    private PsiElementFactory elementFactory = null;
-    private String srcClassName = null;
-    private String srcClassFieldName = null;
+    @SuppressWarnings("NullAway")
+    private @NotNull PsiClass builderClass;
 
-    private boolean useSingleField = false;
-    private boolean isInline = false;
-    private boolean copyConstructor = false;
+    private final PsiElementFactory elementFactory;
+    private final String srcClassName;
+    private final String srcClassFieldName;
 
-    public BuilderPsiClassBuilder aBuilder(BuilderContext context) {
-        initializeFields(context);
-        JavaDirectoryService javaDirectoryService = PsiHelper.getJavaDirectoryService();
-        builderClass = javaDirectoryService.createClass(context.targetDirectory(), builderClassName);
-        PsiModifierList modifierList = builderClass.getModifierList();
-        modifierList.setModifierProperty(PsiModifier.FINAL, true);
-        return this;
-    }
+    private final boolean useSingleField;
+    private final boolean isInline;
+    private final boolean copyConstructor;
 
-    public BuilderPsiClassBuilder anInnerBuilder(BuilderContext context) {
-        initializeFields(context);
-        builderClass = elementFactory.createClass(builderClassName);
-        PsiModifierList modifierList = builderClass.getModifierList();
-        modifierList.setModifierProperty(PsiModifier.FINAL, true);
-        modifierList.setModifierProperty(PsiModifier.STATIC, true);
-        return this;
-    }
-
-    private void initializeFields(@NotNull BuilderContext context) {
+    private BuilderPsiClassBuilder(@NotNull BuilderContext context) {
         JavaPsiFacade javaPsiFacade = PsiHelper.getJavaPsiFacade(context.project());
         elementFactory = javaPsiFacade.getElementFactory();
         srcClass = context.psiClassFromEditor();
@@ -87,6 +72,24 @@ public class BuilderPsiClassBuilder {
         copyConstructorCreator = new CopyConstructorCreator(elementFactory);
         isInline = allSelectedPsiFields.size() == psiFieldsForConstructor.size();
         copyConstructor = context.hasAddCopyConstructor();
+    }
+
+    public static @NotNull BuilderPsiClassBuilder aBuilder(@NotNull BuilderContext context) {
+        BuilderPsiClassBuilder builder = new BuilderPsiClassBuilder(context);
+        JavaDirectoryService javaDirectoryService = PsiHelper.getJavaDirectoryService();
+        builder.builderClass = javaDirectoryService.createClass(context.targetDirectory(), builder.builderClassName);
+        PsiModifierList modifierList = builder.builderClass.getModifierList();
+        modifierList.setModifierProperty(PsiModifier.FINAL, true);
+        return builder;
+    }
+
+    public static @NotNull BuilderPsiClassBuilder anInnerBuilder(@NotNull BuilderContext context) {
+        BuilderPsiClassBuilder builder = new BuilderPsiClassBuilder(context);
+        builder.builderClass = builder.elementFactory.createClass(builder.builderClassName);
+        PsiModifierList modifierList = builder.builderClass.getModifierList();
+        modifierList.setModifierProperty(PsiModifier.FINAL, true);
+        modifierList.setModifierProperty(PsiModifier.STATIC, true);
+        return builder;
     }
 
     public BuilderPsiClassBuilder withFields() {
