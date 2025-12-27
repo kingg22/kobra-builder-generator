@@ -10,18 +10,9 @@ import pl.mjedynak.idea.plugins.builder.gui.helper.GuiHelper;
 import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
-class BuilderWriterComputable implements Computable<PsiElement> {
-
-    private final BuilderPsiClassBuilder builderPsiClassBuilder;
-    private final BuilderContext context;
-    private final PsiClass existingBuilder;
-
-    BuilderWriterComputable(
-            BuilderPsiClassBuilder builderPsiClassBuilder, BuilderContext context, PsiClass existingBuilder) {
-        this.builderPsiClassBuilder = builderPsiClassBuilder;
-        this.context = context;
-        this.existingBuilder = existingBuilder;
-    }
+record BuilderWriterComputable(
+        BuilderPsiClassBuilder builderPsiClassBuilder, BuilderContext context, PsiClass existingBuilder)
+        implements Computable<PsiElement> {
 
     @Override
     public PsiElement compute() {
