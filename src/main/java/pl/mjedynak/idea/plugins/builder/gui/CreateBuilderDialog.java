@@ -1,5 +1,7 @@
 package pl.mjedynak.idea.plugins.builder.gui;
 
+import static java.util.Objects.requireNonNull;
+
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.openapi.command.CommandProcessor;
@@ -50,7 +52,7 @@ public class CreateBuilderDialog extends DialogWrapper {
     private final @NotNull JTextField targetMethodPrefix;
     private final ReferenceEditorComboWithBrowseButton targetPackageField;
     private final @Nullable PsiClass existingBuilder;
-    private PsiDirectory targetDirectory;
+    private @Nullable PsiDirectory targetDirectory;
     private JCheckBox innerBuilder;
     private JCheckBox butMethod;
     private JCheckBox useSingleField;
@@ -79,13 +81,14 @@ public class CreateBuilderDialog extends DialogWrapper {
         setTitle(title);
     }
 
+    @SuppressWarnings("NullAway")
     @Override
     public void show() {
         super.init();
         super.show();
     }
 
-    private void setPreferredSize(JTextField field) {
+    private void setPreferredSize(@NotNull JTextField field) {
         Dimension size = field.getPreferredSize();
         FontMetrics fontMetrics = field.getFontMetrics(field.getFont());
         size.width = fontMetrics.charWidth('a') * WIDTH;
@@ -246,12 +249,12 @@ public class CreateBuilderDialog extends DialogWrapper {
         return panel;
     }
 
-    private void addInnerPanelForDestinationPackageField(JPanel panel, GridBagConstraints gbConstraints) {
+    private void addInnerPanelForDestinationPackageField(@NotNull JPanel panel, GridBagConstraints gbConstraints) {
         JPanel innerPanel = createInnerPanelForDestinationPackageField();
         panel.add(innerPanel, gbConstraints);
     }
 
-    private JPanel createInnerPanelForDestinationPackageField() {
+    private @NotNull JPanel createInnerPanelForDestinationPackageField() {
         JPanel innerPanel = new JPanel(new BorderLayout());
         innerPanel.add(targetPackageField, BorderLayout.CENTER);
         return innerPanel;
@@ -339,10 +342,10 @@ public class CreateBuilderDialog extends DialogWrapper {
     }
 
     public PsiDirectory getTargetDirectory() {
-        return targetDirectory;
+        return requireNonNull(targetDirectory, "Target directory is not set.");
     }
 
-    public void setTargetDirectory(PsiDirectory targetDirectory) {
+    public void setTargetDirectory(@NotNull PsiDirectory targetDirectory) {
         this.targetDirectory = targetDirectory;
     }
 }
