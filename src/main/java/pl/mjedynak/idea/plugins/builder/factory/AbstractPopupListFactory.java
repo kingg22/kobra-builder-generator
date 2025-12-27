@@ -3,6 +3,8 @@ package pl.mjedynak.idea.plugins.builder.factory;
 import javax.swing.JList;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import pl.mjedynak.idea.plugins.builder.renderer.ActionCellRenderer;
 
 public abstract class AbstractPopupListFactory {
@@ -23,6 +25,12 @@ public abstract class AbstractPopupListFactory {
         if (actionCellRenderer == null) {
             actionCellRenderer = new ActionCellRenderer();
         }
+        return actionCellRenderer;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    ActionCellRenderer getActionCellRenderer() {
         return actionCellRenderer;
     }
 }
