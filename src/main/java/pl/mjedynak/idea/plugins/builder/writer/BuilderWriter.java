@@ -3,8 +3,8 @@ package pl.mjedynak.idea.plugins.builder.writer;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.psi.PsiClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
-import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
 public class BuilderWriter {
@@ -12,23 +12,13 @@ public class BuilderWriter {
     @VisibleForTesting
     static final String CREATE_BUILDER_STRING = "Create Builder";
 
-    private final BuilderPsiClassBuilder builderPsiClassBuilder;
-
-    public BuilderWriter() {
-        this(new BuilderPsiClassBuilder());
+    private BuilderWriter() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    @VisibleForTesting
-    BuilderWriter(BuilderPsiClassBuilder builderPsiClassBuilder) {
-        this.builderPsiClassBuilder = builderPsiClassBuilder;
-    }
-
-    public void writeBuilder(@NotNull BuilderContext context, PsiClass existingBuilder) {
+    public static void writeBuilder(@NotNull BuilderContext context, @Nullable PsiClass existingBuilder) {
         CommandProcessor commandProcessor = PsiHelper.getCommandProcessor();
         commandProcessor.executeCommand(
-                context.project(),
-                new BuilderWriterRunnable(builderPsiClassBuilder, context, existingBuilder),
-                CREATE_BUILDER_STRING,
-                this);
+                context.project(), new BuilderWriterRunnable(context, existingBuilder), CREATE_BUILDER_STRING, null);
     }
 }
