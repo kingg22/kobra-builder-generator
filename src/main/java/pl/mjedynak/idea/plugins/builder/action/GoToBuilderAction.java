@@ -1,13 +1,9 @@
 package pl.mjedynak.idea.plugins.builder.action;
 
-import pl.mjedynak.idea.plugins.builder.action.handler.AbstractBuilderActionHandler;
-import pl.mjedynak.idea.plugins.builder.action.handler.GoToBuilderActionHandler;
+import com.intellij.openapi.editor.actionSystem.EditorAction;
 
-public class GoToBuilderAction extends AbstractBuilderAction {
-
-    static {
-        picoContainer.registerComponentImplementation(GoToBuilderActionHandler.class);
-        builderActionHandler =
-                (AbstractBuilderActionHandler) picoContainer.getComponentInstanceOfType(GoToBuilderActionHandler.class);
+public class GoToBuilderAction extends EditorAction {
+    public GoToBuilderAction() {
+        super(null);
     }
 }
