@@ -24,15 +24,15 @@ public record BuilderContext(
         return Arrays.hashCode(objects);
     }
 
+    @SuppressWarnings("EqualsIncompatibleType")
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!(obj instanceof BuilderContext other)) {
             return false;
         }
-        BuilderContext other = (BuilderContext) obj;
         return Objects.equals(this.project, other.project)
                 && Objects.equals(this.psiFieldsForBuilder, other.psiFieldsForBuilder)
                 && Objects.equals(this.targetDirectory, other.targetDirectory)
