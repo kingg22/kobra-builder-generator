@@ -1,12 +1,15 @@
 package pl.mjedynak.idea.plugins.builder.action.handler;
 
 import com.intellij.codeInsight.generation.PsiElementClassMember;
+import com.intellij.ide.util.MemberChooser;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiFile;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pl.mjedynak.idea.plugins.builder.factory.CreateBuilderDialogFactory;
 import pl.mjedynak.idea.plugins.builder.factory.MemberChooserDialogFactory;
 import pl.mjedynak.idea.plugins.builder.factory.PsiFieldsForBuilderFactory;
@@ -19,34 +22,18 @@ import pl.mjedynak.idea.plugins.builder.writer.BuilderWriter;
 
 public class DisplayChoosers {
 
-    private PsiClass psiClassFromEditor;
-    private Project project;
-    private Editor editor;
-    private final PsiHelper psiHelper;
-    private final CreateBuilderDialogFactory createBuilderDialogFactory;
-    private final PsiFieldSelector psiFieldSelector;
-    private final MemberChooserDialogFactory memberChooserDialogFactory;
-    private final BuilderWriter builderWriter;
-    private final PsiFieldsForBuilderFactory psiFieldsForBuilderFactory;
+    private @NotNull PsiClass psiClassFromEditor;
+    private @NotNull Project project;
+    private @NotNull Editor editor;
+    private final @NotNull BuilderWriter builderWriter;
 
-    public DisplayChoosers(
-            PsiHelper psiHelper,
-            CreateBuilderDialogFactory createBuilderDialogFactory,
-            PsiFieldSelector psiFieldSelector,
-            MemberChooserDialogFactory memberChooserDialogFactory,
-            BuilderWriter builderWriter,
-            PsiFieldsForBuilderFactory psiFieldsForBuilderFactory) {
-        this.psiHelper = psiHelper;
-        this.createBuilderDialogFactory = createBuilderDialogFactory;
-        this.psiFieldSelector = psiFieldSelector;
-        this.memberChooserDialogFactory = memberChooserDialogFactory;
+    public DisplayChoosers(@NotNull BuilderWriter builderWriter) {
         this.builderWriter = builderWriter;
-        this.psiFieldsForBuilderFactory = psiFieldsForBuilderFactory;
     }
 
-    public void run(PsiClass existingBuilder) {
+    public void run(@Nullable PsiClass existingBuilder) {
         CreateBuilderDialog createBuilderDialog = showDialog(existingBuilder);
-        if (createBuilderDialog.isOK()) {
+        if (createBuilderDialog != null && createBuilderDialog.isOK()) {
             PsiDirectory targetDirectory = createBuilderDialog.getTargetDirectory();
             String className = createBuilderDialog.getClassName();
             String methodPrefix = createBuilderDialog.getMethodPrefix();
@@ -55,8 +42,8 @@ public class DisplayChoosers {
             boolean hasButMethod = createBuilderDialog.hasButMethod();
             List<PsiElementClassMember<?>> fieldsToDisplay =
                     getFieldsToIncludeInBuilder(psiClassFromEditor, innerBuilder, useSingleField, hasButMethod);
-            com.intellij.ide.util.MemberChooser<PsiElementClassMember<?>> memberChooserDialog =
-                    memberChooserDialogFactory.getMemberChooserDialog(fieldsToDisplay, project);
+            MemberChooser<PsiElementClassMember<?>> memberChooserDialog =
+                    MemberChooserDialogFactory.getMemberChooserDialog(fieldsToDisplay, project);
             memberChooserDialog.show();
             writeBuilderIfNecessary(
                     targetDirectory,
@@ -72,13 +59,14 @@ public class DisplayChoosers {
             PsiDirectory targetDirectory,
             String className,
             String methodPrefix,
-            com.intellij.ide.util.MemberChooser<PsiElementClassMember<?>> memberChooserDialog,
+            MemberChooser<PsiElementClassMember<?>> memberChooserDialog,
             CreateBuilderDialog createBuilderDialog,
             PsiClass existingBuilder) {
         if (memberChooserDialog.isOK()) {
             List<PsiElementClassMember<?>> selectedElements = memberChooserDialog.getSelectedElements();
+            if (selectedElements == null) return;
             PsiFieldsForBuilder psiFieldsForBuilder =
-                    psiFieldsForBuilderFactory.createPsiFieldsForBuilder(selectedElements, psiClassFromEditor);
+                    PsiFieldsForBuilderFactory.createPsiFieldsForBuilder(selectedElements, psiClassFromEditor);
             BuilderContext context = new BuilderContext(
                     project,
                     psiFieldsForBuilder,
@@ -94,29 +82,29 @@ public class DisplayChoosers {
         }
     }
 
-    private CreateBuilderDialog showDialog(PsiClass existingBuilder) {
-        PsiDirectory srcDir = psiHelper.getPsiFileFromEditor(editor, project).getContainingDirectory();
-        PsiPackage srcPackage = psiHelper.getPackage(srcDir);
-        CreateBuilderDialog dialog = createBuilderDialogFactory.createBuilderDialog(
-                psiClassFromEditor, project, srcPackage, existingBuilder);
+    private @Nullable CreateBuilderDialog showDialog(PsiClass existingBuilder) {
+        PsiFile file = PsiHelper.getPsiFile(editor, project);
+        if (file == null) return null;
+        CreateBuilderDialog dialog = CreateBuilderDialogFactory.createBuilderDialog(
+                psiClassFromEditor, project, PsiHelper.getPackage(file.getContainingDirectory()), existingBuilder);
         dialog.show();
         return dialog;
     }
 
-    private List<PsiElementClassMember<?>> getFieldsToIncludeInBuilder(
+    private static List<PsiElementClassMember<?>> getFieldsToIncludeInBuilder(
             PsiClass clazz, boolean innerBuilder, boolean useSingleField, boolean hasButMethod) {
-        return psiFieldSelector.selectFieldsToIncludeInBuilder(clazz, innerBuilder, useSingleField, hasButMethod);
+        return PsiFieldSelector.selectFieldsToIncludeInBuilder(clazz, innerBuilder, useSingleField, hasButMethod);
     }
 
-    public void setPsiClassFromEditor(PsiClass psiClassFromEditor) {
+    public void setPsiClassFromEditor(@NotNull PsiClass psiClassFromEditor) {
         this.psiClassFromEditor = psiClassFromEditor;
     }
 
-    public void setProject(Project project) {
+    public void setProject(@NotNull Project project) {
         this.project = project;
     }
 
-    public void setEditor(Editor editor) {
+    public void setEditor(@NotNull Editor editor) {
         this.editor = editor;
     }
 }
