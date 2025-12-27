@@ -6,11 +6,18 @@ import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class PsiFieldsModifier {
 
-    public void modifyFields(
-            List<PsiField> psiFieldsForSetters, List<PsiField> psiFieldsForConstructor, PsiClass builderClass) {
+    private PsiFieldsModifier() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    public static void modifyFields(
+            @NotNull List<@NotNull PsiField> psiFieldsForSetters,
+            List<@NotNull PsiField> psiFieldsForConstructor,
+            @NotNull PsiClass builderClass) {
         for (PsiField psiFieldsForSetter : psiFieldsForSetters) {
             removeModifiers(psiFieldsForSetter, builderClass);
         }
@@ -19,18 +26,20 @@ public class PsiFieldsModifier {
         }
     }
 
-    public void modifyFieldsForInnerClass(List<PsiField> allFields, PsiClass innerBuilderClass) {
+    public static void modifyFieldsForInnerClass(
+            @NotNull List<@NotNull PsiField> allFields, @NotNull PsiClass innerBuilderClass) {
         for (PsiField field : allFields) {
             removeModifiers(field, innerBuilderClass);
         }
     }
 
-    private void removeModifiers(PsiField psiField, PsiClass builderClass) {
+    private static void removeModifiers(@NotNull PsiField psiField, @NotNull PsiClass builderClass) {
         PsiElement copy = copyField(psiField, builderClass);
         builderClass.add(copy);
     }
 
-    private PsiElement copyField(final PsiField psiField, final PsiClass builderClass) {
+    private static @NotNull PsiElement copyField(
+            final @NotNull PsiField psiField, final @NotNull PsiClass builderClass) {
         PsiField builderField = PsiElementFactory.getInstance(builderClass.getProject())
                 .createField(psiField.getName(), psiField.getType());
         if (builderField.getModifierList() != null) {

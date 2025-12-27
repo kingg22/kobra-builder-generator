@@ -21,18 +21,20 @@ import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.psi.util.PsiUtilBase;
 import com.intellij.refactoring.util.RefactoringMessageUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PsiHelper {
 
-    public PsiFile getPsiFileFromEditor(Editor editor, Project project) {
-        return getPsiFile(editor, project);
+    private PsiHelper() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    public PsiClass getPsiClassFromEditor(Editor editor, Project project) {
+    public static @Nullable PsiClass getPsiClassFromEditor(@NotNull Editor editor, @NotNull Project project) {
         PsiClass psiClass = null;
         PsiFile psiFile = getPsiFile(editor, project);
-        if (psiFile instanceof PsiClassOwner) {
-            PsiClass[] classes = ((PsiClassOwner) psiFile).getClasses();
+        if (psiFile instanceof PsiClassOwner psiClassOwner) {
+            PsiClass[] classes = psiClassOwner.getClasses();
             if (classes.length == 1) {
                 psiClass = classes[0];
             }
@@ -40,20 +42,21 @@ public class PsiHelper {
         return psiClass;
     }
 
-    private PsiFile getPsiFile(Editor editor, Project project) {
+    public static @Nullable PsiFile getPsiFile(@NotNull Editor editor, @NotNull Project project) {
         return PsiUtilBase.getPsiFileInEditor(editor, project);
     }
 
-    public PsiShortNamesCache getPsiShortNamesCache(Project project) {
+    public static PsiShortNamesCache getPsiShortNamesCache(@NotNull Project project) {
         return PsiShortNamesCache.getInstance(project);
     }
 
-    public PsiDirectory getDirectoryFromModuleAndPackageName(Module module, String packageName) {
+    public static @Nullable PsiDirectory getDirectoryFromModuleAndPackageName(
+            @NotNull Module module, @NotNull String packageName) {
         PsiDirectory baseDir = PackageUtil.findPossiblePackageDirectoryInModule(module, packageName);
         return PackageUtil.findOrCreateDirectoryForPackage(module, packageName, baseDir, true);
     }
 
-    public void navigateToClass(PsiClass psiClass) {
+    public static void navigateToClass(@Nullable PsiClass psiClass) {
         if (psiClass != null) {
             Navigatable navigatable = getDescriptor(psiClass);
             if (navigatable != null) {
@@ -62,31 +65,32 @@ public class PsiHelper {
         }
     }
 
-    public String checkIfClassCanBeCreated(PsiDirectory targetDirectory, String className) {
+    public static @Nullable String checkIfClassCanBeCreated(
+            @NotNull PsiDirectory targetDirectory, @NotNull String className) {
         return RefactoringMessageUtil.checkCanCreateClass(targetDirectory, className);
     }
 
-    public JavaDirectoryService getJavaDirectoryService() {
+    public static JavaDirectoryService getJavaDirectoryService() {
         return JavaDirectoryService.getInstance();
     }
 
-    public PsiPackage getPackage(PsiDirectory psiDirectory) {
+    public static @Nullable PsiPackage getPackage(@NotNull PsiDirectory psiDirectory) {
         return getJavaDirectoryService().getPackage(psiDirectory);
     }
 
-    public JavaPsiFacade getJavaPsiFacade(Project project) {
+    public static JavaPsiFacade getJavaPsiFacade(@NotNull Project project) {
         return JavaPsiFacade.getInstance(project);
     }
 
-    public CommandProcessor getCommandProcessor() {
+    public static CommandProcessor getCommandProcessor() {
         return CommandProcessor.getInstance();
     }
 
-    public Application getApplication() {
+    public static @NotNull Application getApplication() {
         return ApplicationManager.getApplication();
     }
 
-    public Module findModuleForPsiClass(PsiClass psiClass, Project project) {
+    public static @Nullable Module findModuleForPsiClass(@NotNull PsiClass psiClass, @NotNull Project project) {
         return ModuleUtil.findModuleForFile(psiClass.getContainingFile().getVirtualFile(), project);
     }
 }

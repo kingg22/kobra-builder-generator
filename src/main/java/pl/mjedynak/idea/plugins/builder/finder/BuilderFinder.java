@@ -1,34 +1,41 @@
 package pl.mjedynak.idea.plugins.builder.finder;
 
 import com.intellij.psi.PsiClass;
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 
 public class BuilderFinder {
 
+    @VisibleForTesting
     static final String SEARCH_PATTERN = "Builder";
+
     public static final String EMPTY_STRING = "";
 
-    private final ClassFinder classFinder;
-
-    public BuilderFinder(ClassFinder classFinder) {
-        this.classFinder = classFinder;
+    private BuilderFinder() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    public PsiClass findBuilderForClass(PsiClass psiClass) {
+    @Nullable
+    public static PsiClass findBuilderForClass(@NotNull PsiClass psiClass) {
         PsiClass innerBuilderClass = tryFindInnerBuilder(psiClass);
         if (innerBuilderClass != null) {
             return innerBuilderClass;
         } else {
-            String searchName = psiClass.getName() + SEARCH_PATTERN;
-            return findClass(psiClass, searchName);
+            String className = psiClass.getName();
+            if (className == null) return null;
+            return findClass(psiClass, className + SEARCH_PATTERN);
         }
     }
 
-    private PsiClass tryFindInnerBuilder(PsiClass psiClass) {
+    @Nullable
+    private static PsiClass tryFindInnerBuilder(@NotNull PsiClass psiClass) {
         PsiClass innerBuilderClass = null;
         PsiClass[] allInnerClasses = psiClass.getAllInnerClasses();
         for (PsiClass innerClass : allInnerClasses) {
-            if (Objects.requireNonNull(innerClass.getName()).contains(SEARCH_PATTERN)) {
+            String innerClassName = innerClass.getName();
+            if (innerClassName == null) continue;
+            if (innerClassName.contains(SEARCH_PATTERN)) {
                 innerBuilderClass = innerClass;
                 break;
             }
@@ -36,20 +43,24 @@ public class BuilderFinder {
         return innerBuilderClass;
     }
 
-    public PsiClass findClassForBuilder(PsiClass psiClass) {
-        String searchName = Objects.requireNonNull(psiClass.getName()).replaceFirst(SEARCH_PATTERN, EMPTY_STRING);
+    @Nullable
+    public static PsiClass findClassForBuilder(@NotNull PsiClass psiClass) {
+        String className = psiClass.getName();
+        if (className == null) return null;
+        String searchName = className.replaceFirst(SEARCH_PATTERN, EMPTY_STRING);
         return findClass(psiClass, searchName);
     }
 
-    private PsiClass findClass(PsiClass psiClass, String searchName) {
+    @Nullable
+    private static PsiClass findClass(@NotNull PsiClass psiClass, @NotNull String searchName) {
         PsiClass result = null;
         if (typeIsCorrect(psiClass)) {
-            result = classFinder.findClass(searchName, psiClass.getProject());
+            result = ClassFinder.findClass(searchName, psiClass.getProject());
         }
         return result;
     }
 
-    private boolean typeIsCorrect(PsiClass psiClass) {
+    private static boolean typeIsCorrect(@NotNull PsiClass psiClass) {
         return !psiClass.isAnnotationType() && !psiClass.isEnum() && !psiClass.isInterface();
     }
 }

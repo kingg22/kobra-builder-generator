@@ -7,38 +7,35 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import java.util.List;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import pl.mjedynak.idea.plugins.builder.psi.BestConstructorSelector;
 import pl.mjedynak.idea.plugins.builder.psi.model.PsiFieldsForBuilder;
 import pl.mjedynak.idea.plugins.builder.verifier.PsiFieldVerifier;
 
 public class PsiFieldsForBuilderFactory {
 
-    private final PsiFieldVerifier psiFieldVerifier;
-    private final BestConstructorSelector bestConstructorSelector;
-
-    public PsiFieldsForBuilderFactory(
-            PsiFieldVerifier psiFieldVerifier, BestConstructorSelector bestConstructorSelector) {
-        this.psiFieldVerifier = psiFieldVerifier;
-        this.bestConstructorSelector = bestConstructorSelector;
+    private PsiFieldsForBuilderFactory() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    @SuppressWarnings("rawtypes")
-    public PsiFieldsForBuilder createPsiFieldsForBuilder(
-            List<PsiElementClassMember<?>> psiElementClassMembers, PsiClass psiClass) {
+    @Contract("_, _ -> new")
+    public static @NotNull PsiFieldsForBuilder createPsiFieldsForBuilder(
+            @NotNull List<PsiElementClassMember<?>> psiElementClassMembers, @NotNull PsiClass psiClass) {
         List<PsiField> allSelectedPsiFields = Lists.newArrayList();
         List<PsiField> psiFieldsFoundInSetters = Lists.newArrayList();
-        for (PsiElementClassMember psiElementClassMember : psiElementClassMembers) {
+        for (PsiElementClassMember<?> psiElementClassMember : psiElementClassMembers) {
             PsiElement psiElement = psiElementClassMember.getPsiElement();
             if (psiElement instanceof PsiField) {
                 allSelectedPsiFields.add((PsiField) psiElement);
-                if (psiFieldVerifier.isSetInSetterMethod((PsiField) psiElement, psiClass)) {
+                if (PsiFieldVerifier.isSetInSetterMethod((PsiField) psiElement, psiClass)) {
                     psiFieldsFoundInSetters.add((PsiField) psiElement);
                 }
             }
         }
         List<PsiField> psiFieldsToFindInConstructor = getSubList(allSelectedPsiFields, psiFieldsFoundInSetters);
         List<PsiField> psiFieldsForConstructor = Lists.newArrayList();
-        PsiMethod bestConstructor = bestConstructorSelector.getBestConstructor(psiFieldsToFindInConstructor, psiClass);
+        PsiMethod bestConstructor = BestConstructorSelector.getBestConstructor(psiFieldsToFindInConstructor, psiClass);
         if (bestConstructor != null) {
             buildPsiFieldsForConstructor(psiFieldsForConstructor, allSelectedPsiFields, bestConstructor);
         }
@@ -48,16 +45,19 @@ public class PsiFieldsForBuilderFactory {
                 psiFieldsForSetters, psiFieldsForConstructor, allSelectedPsiFields, bestConstructor);
     }
 
-    private void buildPsiFieldsForConstructor(
-            List<PsiField> psiFieldsForConstructor, List<PsiField> allSelectedPsiFields, PsiMethod bestConstructor) {
+    private static void buildPsiFieldsForConstructor(
+            @NotNull List<PsiField> psiFieldsForConstructor,
+            @NotNull List<PsiField> allSelectedPsiFields,
+            @NotNull PsiMethod bestConstructor) {
         for (PsiField selectedPsiField : allSelectedPsiFields) {
-            if (psiFieldVerifier.checkConstructor(selectedPsiField, bestConstructor)) {
+            if (PsiFieldVerifier.checkConstructor(selectedPsiField, bestConstructor)) {
                 psiFieldsForConstructor.add(selectedPsiField);
             }
         }
     }
 
-    private List<PsiField> getSubList(List<PsiField> inputList, List<PsiField> listToRemove) {
+    private static @NotNull List<PsiField> getSubList(
+            @NotNull List<PsiField> inputList, @NotNull List<PsiField> listToRemove) {
         List<PsiField> newList = Lists.newArrayList();
         for (PsiField inputPsiField : inputList) {
             boolean setterMustBeAdded = true;

@@ -7,18 +7,26 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import javax.swing.Icon;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class GuiHelper {
 
-    public void showMessageDialog(Project project, String message, String title, Icon icon) {
+    private GuiHelper() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    public static void showMessageDialog(
+            @Nullable Project project, @NotNull String message, @NotNull String title, @Nullable Icon icon) {
         Messages.showMessageDialog(project, message, title, icon);
     }
 
-    public void includeCurrentPlaceAsChangePlace(Project project) {
+    public static void includeCurrentPlaceAsChangePlace(@NotNull Project project) {
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace();
     }
 
-    public void positionCursor(Project project, PsiFile psiFile, PsiElement psiElement) {
+    public static void positionCursor(
+            @NotNull Project project, @NotNull PsiFile psiFile, @NotNull PsiElement psiElement) {
         CodeInsightUtil.positionCursor(project, psiFile, psiElement);
     }
 }

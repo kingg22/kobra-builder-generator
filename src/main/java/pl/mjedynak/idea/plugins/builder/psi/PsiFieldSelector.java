@@ -8,22 +8,18 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import pl.mjedynak.idea.plugins.builder.factory.PsiElementClassMemberFactory;
 import pl.mjedynak.idea.plugins.builder.verifier.PsiFieldVerifier;
 
 public class PsiFieldSelector {
 
-    private final PsiElementClassMemberFactory psiElementClassMemberFactory;
-    private final PsiFieldVerifier psiFieldVerifier;
-
-    public PsiFieldSelector(
-            PsiElementClassMemberFactory psiElementClassMemberFactory, PsiFieldVerifier psiFieldVerifier) {
-        this.psiElementClassMemberFactory = psiElementClassMemberFactory;
-        this.psiFieldVerifier = psiFieldVerifier;
+    private PsiFieldSelector() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    public List<PsiElementClassMember<?>> selectFieldsToIncludeInBuilder(
-            PsiClass psiClass, boolean innerBuilder, boolean useSingleField, boolean hasButMethod) {
+    public static @NotNull List<PsiElementClassMember<?>> selectFieldsToIncludeInBuilder(
+            @NotNull PsiClass psiClass, boolean innerBuilder, boolean useSingleField, boolean hasButMethod) {
         List<PsiElementClassMember<?>> result = new ArrayList<>();
 
         List<PsiField> psiFields = stream(psiClass.getAllFields())
@@ -34,21 +30,21 @@ public class PsiFieldSelector {
                 .collect(toList());
 
         for (PsiField psiField : filtered) {
-            result.add(psiElementClassMemberFactory.createPsiElementClassMember(psiField));
+            result.add(PsiElementClassMemberFactory.createPsiElementClassMember(psiField));
         }
         return result;
     }
 
-    private boolean isAppropriate(
+    private static boolean isAppropriate(
             PsiClass psiClass, PsiField psiField, boolean innerBuilder, boolean useSingleField, boolean hasButMethod) {
         if (useSingleField && hasButMethod) {
-            return psiFieldVerifier.isSetInSetterMethod(psiField, psiClass)
-                    && psiFieldVerifier.hasGetterMethod(psiField, psiClass);
+            return PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass)
+                    && PsiFieldVerifier.hasGetterMethod(psiField, psiClass);
         } else if (useSingleField) {
-            return psiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
+            return PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
         } else if (!innerBuilder) {
-            return psiFieldVerifier.isSetInSetterMethod(psiField, psiClass)
-                    || psiFieldVerifier.isSetInConstructor(psiField, psiClass);
+            return PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass)
+                    || PsiFieldVerifier.isSetInConstructor(psiField, psiClass);
         }
         return true;
     }

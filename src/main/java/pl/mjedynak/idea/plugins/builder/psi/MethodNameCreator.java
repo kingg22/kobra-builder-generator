@@ -4,8 +4,11 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class MethodNameCreator {
+    private MethodNameCreator() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
-    public String createMethodName(String methodPrefix, String fieldName) {
+    public static String createMethodName(String methodPrefix, String fieldName) {
         if (isEmpty(methodPrefix)) {
             return fieldName;
         } else {

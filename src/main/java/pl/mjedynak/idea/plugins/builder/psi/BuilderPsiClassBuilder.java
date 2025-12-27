@@ -12,6 +12,7 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypes;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -29,10 +30,6 @@ public class BuilderPsiClassBuilder {
     private static final String AN_PREFIX = " an";
     private static final String SEMICOLON = ",";
 
-    private final PsiHelper psiHelper = new PsiHelper();
-    private final PsiFieldsModifier psiFieldsModifier = new PsiFieldsModifier();
-    private final PsiFieldVerifier psiFieldVerifier = new PsiFieldVerifier();
-    private final CodeStyleSettings codeStyleSettings = new CodeStyleSettings();
     private ButMethodCreator butMethodCreator;
     private CopyConstructorCreator copyConstructorCreator;
     private MethodCreator methodCreator;
@@ -56,8 +53,8 @@ public class BuilderPsiClassBuilder {
 
     public BuilderPsiClassBuilder aBuilder(BuilderContext context) {
         initializeFields(context);
-        JavaDirectoryService javaDirectoryService = psiHelper.getJavaDirectoryService();
-        builderClass = javaDirectoryService.createClass(context.getTargetDirectory(), builderClassName);
+        JavaDirectoryService javaDirectoryService = PsiHelper.getJavaDirectoryService();
+        builderClass = javaDirectoryService.createClass(context.targetDirectory(), builderClassName);
         PsiModifierList modifierList = builderClass.getModifierList();
         modifierList.setModifierProperty(PsiModifier.FINAL, true);
         return this;
@@ -73,17 +70,17 @@ public class BuilderPsiClassBuilder {
     }
 
     private void initializeFields(BuilderContext context) {
-        JavaPsiFacade javaPsiFacade = psiHelper.getJavaPsiFacade(context.getProject());
+        JavaPsiFacade javaPsiFacade = PsiHelper.getJavaPsiFacade(context.project());
         elementFactory = javaPsiFacade.getElementFactory();
-        srcClass = context.getPsiClassFromEditor();
-        builderClassName = context.getClassName();
-        srcClassName = context.getPsiClassFromEditor().getName();
+        srcClass = context.psiClassFromEditor();
+        builderClassName = context.className();
+        srcClassName = context.psiClassFromEditor().getName();
         srcClassFieldName = StringUtils.uncapitalize(srcClassName);
-        psiFieldsForSetters = context.getPsiFieldsForBuilder().getFieldsForSetters();
-        psiFieldsForConstructor = context.getPsiFieldsForBuilder().getFieldsForConstructor();
-        allSelectedPsiFields = context.getPsiFieldsForBuilder().getAllSelectedFields();
+        psiFieldsForSetters = context.psiFieldsForBuilder().fieldsForSetters();
+        psiFieldsForConstructor = context.psiFieldsForBuilder().fieldsForConstructor();
+        allSelectedPsiFields = context.psiFieldsForBuilder().allSelectedFields();
         useSingleField = context.useSingleField();
-        bestConstructor = context.getPsiFieldsForBuilder().getBestConstructor();
+        bestConstructor = context.psiFieldsForBuilder().bestConstructor();
         methodCreator = new MethodCreator(elementFactory, builderClassName);
         butMethodCreator = new ButMethodCreator(elementFactory);
         copyConstructorCreator = new CopyConstructorCreator(elementFactory);
@@ -97,9 +94,9 @@ public class BuilderPsiClassBuilder {
             PsiField singleField = elementFactory.createFieldFromText(fieldText, srcClass);
             builderClass.add(singleField);
         } else if (isInnerBuilder(builderClass)) {
-            psiFieldsModifier.modifyFieldsForInnerClass(allSelectedPsiFields, builderClass);
+            PsiFieldsModifier.modifyFieldsForInnerClass(allSelectedPsiFields, builderClass);
         } else {
-            psiFieldsModifier.modifyFields(psiFieldsForSetters, psiFieldsForConstructor, builderClass);
+            PsiFieldsModifier.modifyFields(psiFieldsForSetters, psiFieldsForConstructor, builderClass);
         }
         return this;
     }
@@ -236,7 +233,7 @@ public class BuilderPsiClassBuilder {
 
     private void appendSetMethods(StringBuilder buildMethodText, Collection<PsiField> fieldsToBeSetViaSetter) {
         for (PsiField psiFieldsForSetter : fieldsToBeSetViaSetter) {
-            String fieldNamePrefix = codeStyleSettings.getFieldNamePrefix();
+            String fieldNamePrefix = CodeStyleSettings.FIELD_NAME_PREFIX;
             String fieldName = psiFieldsForSetter.getName();
             String fieldNameWithoutPrefix = fieldName.replaceFirst(fieldNamePrefix, "");
             String fieldNameUppercase = StringUtils.capitalize(fieldNameWithoutPrefix);
@@ -271,7 +268,7 @@ public class BuilderPsiClassBuilder {
         for (PsiParameter psiParameter : bestConstructor.getParameterList().getParameters()) {
             boolean parameterHasMatchingField = false;
             for (PsiField psiField : psiFieldsForConstructor) {
-                if (psiFieldVerifier.areNameAndTypeEqual(psiField, psiParameter)) {
+                if (PsiFieldVerifier.areNameAndTypeEqual(psiField, psiParameter)) {
                     sb.append(psiField.getName()).append(SEMICOLON);
                     parameterHasMatchingField = true;
                     break;
@@ -285,24 +282,26 @@ public class BuilderPsiClassBuilder {
         return sb.toString();
     }
 
-    private String getDefaultValue(PsiType type) {
-        if (type.equals(PsiType.BOOLEAN)) {
+    private static String getDefaultValue(PsiType type) {
+        if (type.equals(PsiTypes.booleanType())) {
             return "false";
-        } else if (type.equals(PsiType.BYTE) || type.equals(PsiType.SHORT) || type.equals(PsiType.INT)) {
+        } else if (type.equals(PsiTypes.byteType())
+                || type.equals(PsiTypes.shortType())
+                || type.equals(PsiTypes.intType())) {
             return "0";
-        } else if (type.equals(PsiType.LONG)) {
+        } else if (type.equals(PsiTypes.longType())) {
             return "0L";
-        } else if (type.equals(PsiType.FLOAT)) {
+        } else if (type.equals(PsiTypes.floatType())) {
             return "0.0f";
-        } else if (type.equals(PsiType.DOUBLE)) {
+        } else if (type.equals(PsiTypes.doubleType())) {
             return "0.0d";
-        } else if (type.equals(PsiType.CHAR)) {
+        } else if (type.equals(PsiTypes.charType())) {
             return "'\\u0000'";
         }
         return "null";
     }
 
-    private void removeLastSemicolon(StringBuilder sb) {
+    private static void removeLastSemicolon(StringBuilder sb) {
         if (sb.toString().endsWith(SEMICOLON)) {
             sb.deleteCharAt(sb.length() - 1);
         }

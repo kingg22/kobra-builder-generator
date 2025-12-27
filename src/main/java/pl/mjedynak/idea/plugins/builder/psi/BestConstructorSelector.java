@@ -14,17 +14,21 @@ import pl.mjedynak.idea.plugins.builder.verifier.PsiFieldVerifier;
 
 public class BestConstructorSelector {
 
-    private final PsiFieldVerifier psiFieldVerifier;
+    private static final List<ConstructorWithExtraData> constructorsWithEqualParameterCount;
+    private static final TreeSet<ConstructorWithExtraData> constructorsWithHigherParameterCount;
+    private static final List<ConstructorWithExtraData> constructorsWithLowerParameterCount;
 
-    private List<ConstructorWithExtraData> constructorsWithEqualParameterCount;
-    private TreeSet<ConstructorWithExtraData> constructorsWithHigherParameterCount;
-    private List<ConstructorWithExtraData> constructorsWithLowerParameterCount;
-
-    public BestConstructorSelector(PsiFieldVerifier psiFieldVerifier) {
-        this.psiFieldVerifier = psiFieldVerifier;
+    static {
+        constructorsWithEqualParameterCount = Lists.newArrayList();
+        constructorsWithHigherParameterCount = Sets.newTreeSet();
+        constructorsWithLowerParameterCount = Lists.newArrayList();
     }
 
-    public PsiMethod getBestConstructor(Collection<PsiField> psiFieldsToFindInConstructor, PsiClass psiClass) {
+    private BestConstructorSelector() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
+    public static PsiMethod getBestConstructor(Collection<PsiField> psiFieldsToFindInConstructor, PsiClass psiClass) {
         int fieldsToFindCount = psiFieldsToFindInConstructor.size();
         createConstructorLists(psiFieldsToFindInConstructor, psiClass);
 
@@ -45,10 +49,10 @@ public class BestConstructorSelector {
         return findConstructorWithMaximumOfFieldsToFind();
     }
 
-    private void createConstructorLists(Collection<PsiField> psiFieldsToFindInConstructor, PsiClass psiClass) {
-        constructorsWithEqualParameterCount = Lists.newArrayList();
-        constructorsWithHigherParameterCount = Sets.newTreeSet();
-        constructorsWithLowerParameterCount = Lists.newArrayList();
+    private static void createConstructorLists(Collection<PsiField> psiFieldsToFindInConstructor, PsiClass psiClass) {
+        constructorsWithEqualParameterCount.clear();
+        constructorsWithHigherParameterCount.clear();
+        constructorsWithLowerParameterCount.clear();
         PsiMethod[] constructors = psiClass.getConstructors();
         for (PsiMethod constructor : constructors) {
             int parameterCount = constructor.getParameterList().getParametersCount();
@@ -62,13 +66,13 @@ public class BestConstructorSelector {
         }
     }
 
-    private void computeNumberOfMatchingFields(
+    private static void computeNumberOfMatchingFields(
             Iterable<ConstructorWithExtraData> constuctorsWithExtraData,
             Iterable<PsiField> psiFieldsToFindInConstructor) {
         for (ConstructorWithExtraData constructorWithExtraData : constuctorsWithExtraData) {
             int matchingFieldsCount = 0;
             for (PsiField psiField : psiFieldsToFindInConstructor) {
-                if (psiFieldVerifier.checkConstructor(psiField, constructorWithExtraData.getConstructor())) {
+                if (PsiFieldVerifier.checkConstructor(psiField, constructorWithExtraData.getConstructor())) {
                     matchingFieldsCount++;
                 }
             }
@@ -76,7 +80,7 @@ public class BestConstructorSelector {
         }
     }
 
-    private PsiMethod findConstructorWithAllFieldsToFind(
+    private static PsiMethod findConstructorWithAllFieldsToFind(
             Iterable<ConstructorWithExtraData> constructorsWithExtraData, int fieldsToFindCount) {
         for (ConstructorWithExtraData constructorWithExtraData : constructorsWithExtraData) {
             if (constructorWithExtraData.getMatchingFieldsCount() == fieldsToFindCount) {
@@ -86,7 +90,7 @@ public class BestConstructorSelector {
         return null;
     }
 
-    private PsiMethod findConstructorWithMaximumOfFieldsToFind() {
+    private static PsiMethod findConstructorWithMaximumOfFieldsToFind() {
         Iterable<ConstructorWithExtraData> allConstructors = Iterables.concat(
                 constructorsWithEqualParameterCount,
                 constructorsWithHigherParameterCount,
@@ -107,32 +111,33 @@ public class BestConstructorSelector {
     }
 
     private static class ConstructorWithExtraData implements Comparable<ConstructorWithExtraData> {
-        private final PsiMethod constructor;
-        private Integer matchingFieldsCount;
+        private final @NotNull PsiMethod constructor;
+        private int matchingFieldsCount;
 
-        ConstructorWithExtraData(PsiMethod constructor) {
+        ConstructorWithExtraData(@NotNull PsiMethod constructor) {
             this.constructor = constructor;
         }
 
         @Override
-        public int compareTo(@NotNull ConstructorWithExtraData constructorToCompare) {
-            return this.getParametersCount().compareTo(constructorToCompare.getParametersCount());
+        public int compareTo(@NotNull ConstructorWithExtraData other) {
+            return Integer.compare(this.getParametersCount(), other.getParametersCount());
         }
 
+        @NotNull
         PsiMethod getConstructor() {
             return constructor;
         }
 
-        Integer getMatchingFieldsCount() {
+        int getMatchingFieldsCount() {
             return matchingFieldsCount;
         }
 
-        void setMatchingFieldsCount(Integer matchingFieldsCount) {
+        void setMatchingFieldsCount(int matchingFieldsCount) {
             this.matchingFieldsCount = matchingFieldsCount;
         }
 
-        Integer getParametersCount() {
-            return constructor == null ? null : constructor.getParameterList().getParametersCount();
+        int getParametersCount() {
+            return constructor.getParameterList().getParametersCount();
         }
     }
 }

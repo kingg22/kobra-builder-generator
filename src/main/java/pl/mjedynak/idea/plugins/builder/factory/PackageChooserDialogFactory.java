@@ -2,14 +2,18 @@ package pl.mjedynak.idea.plugins.builder.factory;
 
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public class PackageChooserDialogFactory {
 
-    public PackageChooserDialog getPackageChooserDialog(String message, Project project) {
-        return createNewInstance(message, project);
+    private PackageChooserDialogFactory() {
+        throw new UnsupportedOperationException("Utility class");
     }
 
-    PackageChooserDialog createNewInstance(String message, Project project) {
+    @Contract("_, _ -> new")
+    public static @NotNull PackageChooserDialog getPackageChooserDialog(
+            @NotNull String message, @NotNull Project project) {
         return new PackageChooserDialog(message, project);
     }
 }

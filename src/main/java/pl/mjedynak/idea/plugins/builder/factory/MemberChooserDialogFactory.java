@@ -4,13 +4,19 @@ import com.intellij.codeInsight.generation.PsiElementClassMember;
 import com.intellij.ide.util.MemberChooser;
 import com.intellij.openapi.project.Project;
 import java.util.List;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public class MemberChooserDialogFactory {
 
+    private MemberChooserDialogFactory() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     static final String TITLE = "Select Fields to Be Available in Builder";
 
-    public com.intellij.ide.util.MemberChooser<PsiElementClassMember<?>> getMemberChooserDialog(
-            List<PsiElementClassMember<?>> elements, Project project) {
+    public static @NotNull MemberChooser<PsiElementClassMember<?>> getMemberChooserDialog(
+            @NotNull List<PsiElementClassMember<?>> elements, @NotNull Project project) {
         PsiElementClassMember<?>[] psiElementClassMembers = elements.toArray(new PsiElementClassMember[0]);
         MemberChooser<PsiElementClassMember<?>> memberChooserDialog =
                 createNewInstance(project, psiElementClassMembers);
@@ -20,9 +26,9 @@ public class MemberChooserDialogFactory {
         return memberChooserDialog;
     }
 
-    MemberChooser<PsiElementClassMember<?>> createNewInstance(
-            Project project, PsiElementClassMember<?>[] psiElementClassMembers) {
-        return new com.intellij.ide.util.MemberChooser<PsiElementClassMember<?>>(
-                psiElementClassMembers, false, true, project, false);
+    @Contract("_, _ -> new")
+    private static @NotNull MemberChooser<PsiElementClassMember<?>> createNewInstance(
+            @NotNull Project project, PsiElementClassMember<?>[] psiElementClassMembers) {
+        return new MemberChooser<>(psiElementClassMembers, false, true, project, false);
     }
 }

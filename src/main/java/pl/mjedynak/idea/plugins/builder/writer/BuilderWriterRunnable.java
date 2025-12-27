@@ -7,7 +7,6 @@ import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
 public class BuilderWriterRunnable implements Runnable {
 
-    private final PsiHelper psiHelper = new PsiHelper();
     private final BuilderPsiClassBuilder builderPsiClassBuilder;
     private final BuilderContext context;
     private final PsiClass existingBuilder;
@@ -21,7 +20,7 @@ public class BuilderWriterRunnable implements Runnable {
 
     @Override
     public void run() {
-        Application application = psiHelper.getApplication();
+        Application application = PsiHelper.getApplication();
         application.runWriteAction(new BuilderWriterComputable(builderPsiClassBuilder, context, existingBuilder));
     }
 }
