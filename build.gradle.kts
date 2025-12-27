@@ -90,7 +90,6 @@ tasks.withType<JavaCompile> {
     options.errorprone {
         isEnabled.set(true)
         allSuggestionsAsWarnings.set(true)
-        disable("RequireExplicitNullMarking")
         nullaway {
             error()
             suggestSuppressions.set(true)
