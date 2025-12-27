@@ -1,9 +1,7 @@
 package pl.mjedynak.idea.plugins.builder.action.handler;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import javax.swing.JList;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +13,9 @@ import pl.mjedynak.idea.plugins.builder.factory.GenerateBuilderPopupListFactory;
 import pl.mjedynak.idea.plugins.builder.gui.displayer.GenerateBuilderPopupDisplayer;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
-@Service(Service.Level.PROJECT)
-public final class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
+public class GenerateBuilderActionHandler extends AbstractBuilderActionHandler {
 
-    public GenerateBuilderActionHandler(Project project) {
+    public GenerateBuilderActionHandler() {
         super(new GenerateBuilderPopupDisplayer(), new GenerateBuilderPopupListFactory(), new DisplayChoosers());
     }
 
