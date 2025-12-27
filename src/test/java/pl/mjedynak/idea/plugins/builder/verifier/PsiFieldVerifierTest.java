@@ -1,11 +1,9 @@
 package pl.mjedynak.idea.plugins.builder.verifier;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mock.Strictness.LENIENT;
 import static org.mockito.Mockito.mock;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
@@ -20,12 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.mjedynak.idea.plugins.builder.settings.CodeStyleSettings;
 
 @ExtendWith(MockitoExtension.class)
 public class PsiFieldVerifierTest {
 
-    private PsiFieldVerifier psiFieldVerifier;
     private PsiMethod[] constructors;
     private PsiMethod[] methods;
     private PsiParameter[] parameters;
@@ -54,17 +50,10 @@ public class PsiFieldVerifierTest {
     @Mock
     private PsiModifierList modifierList;
 
-    @Mock(strictness = LENIENT)
-    private CodeStyleSettings settings;
-
     private String name;
 
     @BeforeEach
     public void setUp() {
-        psiFieldVerifier = new PsiFieldVerifier();
-        setField(psiFieldVerifier, "codeStyleSettings", settings);
-        given(settings.getParameterNamePrefix()).willReturn(EMPTY);
-        given(settings.getFieldNamePrefix()).willReturn(EMPTY);
         constructors = new PsiMethod[1];
         constructors[0] = constructor;
         methods = new PsiMethod[1];
@@ -80,7 +69,7 @@ public class PsiFieldVerifierTest {
         given(psiClass.getConstructors()).willReturn(new PsiMethod[0]);
 
         // when
-        boolean result = psiFieldVerifier.isSetInConstructor(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInConstructor(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();
@@ -96,7 +85,7 @@ public class PsiFieldVerifierTest {
         given(psiField.getName()).willReturn("differentName");
 
         // when
-        boolean result = psiFieldVerifier.isSetInConstructor(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInConstructor(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();
@@ -113,7 +102,7 @@ public class PsiFieldVerifierTest {
         given(psiField.getName()).willReturn(name);
 
         // when
-        boolean result = psiFieldVerifier.isSetInConstructor(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInConstructor(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();
@@ -129,7 +118,7 @@ public class PsiFieldVerifierTest {
         given(psiField.getName()).willReturn(name);
 
         // when
-        boolean result = psiFieldVerifier.isSetInConstructor(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInConstructor(psiField, psiClass);
 
         // then
         assertThat(result).isTrue();
@@ -144,7 +133,7 @@ public class PsiFieldVerifierTest {
         given(method.getName()).willReturn("setField");
 
         // when
-        boolean result = psiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
 
         // then
         assertThat(result).isTrue();
@@ -159,7 +148,7 @@ public class PsiFieldVerifierTest {
         given(modifierList.hasExplicitModifier(PsiModifier.PRIVATE)).willReturn(true);
         given(method.getName()).willReturn("setField");
         // when
-        boolean result = psiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();
@@ -173,7 +162,7 @@ public class PsiFieldVerifierTest {
         given(psiField.getName()).willReturn("field");
         given(method.getName()).willReturn("setAnotherField");
         // when
-        boolean result = psiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
+        boolean result = PsiFieldVerifier.isSetInSetterMethod(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();
@@ -188,7 +177,7 @@ public class PsiFieldVerifierTest {
         given(method.getName()).willReturn("getField");
 
         // when
-        boolean result = psiFieldVerifier.hasGetterMethod(psiField, psiClass);
+        boolean result = PsiFieldVerifier.hasGetterMethod(psiField, psiClass);
 
         // then
         assertThat(result).isTrue();
@@ -203,7 +192,7 @@ public class PsiFieldVerifierTest {
         given(modifierList.hasExplicitModifier(PsiModifier.PRIVATE)).willReturn(true);
         given(method.getName()).willReturn("setField");
         // when
-        boolean result = psiFieldVerifier.hasGetterMethod(psiField, psiClass);
+        boolean result = PsiFieldVerifier.hasGetterMethod(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();
@@ -217,7 +206,7 @@ public class PsiFieldVerifierTest {
         given(psiField.getName()).willReturn("field");
         given(method.getName()).willReturn("getAnotherField");
         // when
-        boolean result = psiFieldVerifier.hasGetterMethod(psiField, psiClass);
+        boolean result = PsiFieldVerifier.hasGetterMethod(psiField, psiClass);
 
         // then
         assertThat(result).isFalse();

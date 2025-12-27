@@ -12,8 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
@@ -22,11 +22,8 @@ public class ClassFinderTest {
 
     private static final String CLASS_NAME = "SomeClass";
 
-    @InjectMocks
-    private ClassFinder classFinder;
-
     @Mock
-    private PsiHelper psiHelper;
+    private MockedStatic<PsiHelper> psiHelper;
 
     @Mock
     private PsiShortNamesCache psiShortNamesCache;
@@ -40,7 +37,7 @@ public class ClassFinderTest {
     @BeforeEach
     public void setUp() {
         given(project.getUserData(ArgumentMatchers.any())).willReturn(globalSearchScope);
-        given(psiHelper.getPsiShortNamesCache(project)).willReturn(psiShortNamesCache);
+        psiHelper.when(() -> PsiHelper.getPsiShortNamesCache(project)).thenReturn(psiShortNamesCache);
     }
 
     @Test
@@ -51,7 +48,7 @@ public class ClassFinderTest {
                 .willReturn(emptyArray);
 
         // when
-        PsiClass result = classFinder.findClass(CLASS_NAME, project);
+        PsiClass result = ClassFinder.findClass(CLASS_NAME, project);
 
         // then
         assertThat(result).isNull();
@@ -68,7 +65,7 @@ public class ClassFinderTest {
                 .willReturn(foundClassArray);
 
         // when
-        PsiClass result = classFinder.findClass(CLASS_NAME, project);
+        PsiClass result = ClassFinder.findClass(CLASS_NAME, project);
 
         // then
         verifyClassIsFound(CLASS_NAME, result);

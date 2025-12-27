@@ -21,9 +21,9 @@ public class GoToBuilderPopupListFactoryTest {
         // then
         assertThat(popupList).isInstanceOf(JBList.class);
         assertThat(popupList.getCellRenderer()).isInstanceOf(ExpandedItemListCellRendererWrapper.class);
-        assertThat(((ExpandedItemListCellRendererWrapper) popupList.getCellRenderer()).getWrappee())
+        assertThat(((ExpandedItemListCellRendererWrapper<?>) popupList.getCellRenderer()).getWrappee())
                 .isInstanceOf(ActionCellRenderer.class);
-        assertThat(((JBList) popupList).getItemsCount()).isEqualTo(1);
+        assertThat(((JBList<?>) popupList).getItemsCount()).isEqualTo(1);
     }
 
     @Test

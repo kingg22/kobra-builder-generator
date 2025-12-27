@@ -7,12 +7,10 @@ import org.junit.jupiter.api.Test;
 
 public class MethodNameCreatorTest {
 
-    private final MethodNameCreator methodNameCreator = new MethodNameCreator();
-
     @Test
     void shouldCreateMethodIfPrefixIsEmpty() {
         // when
-        String result = methodNameCreator.createMethodName(EMPTY, "userName");
+        String result = MethodNameCreator.createMethodName(EMPTY, "userName");
 
         // then
         assertThat(result).isEqualTo("userName");
@@ -21,7 +19,7 @@ public class MethodNameCreatorTest {
     @Test
     void shouldCreateMethodWithCapitalizedFieldNameIfPrefixIsNotEmpty() {
         // when
-        String result = methodNameCreator.createMethodName("with", "field");
+        String result = MethodNameCreator.createMethodName("with", "field");
 
         // then
         assertThat(result).isEqualTo("withField");

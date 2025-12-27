@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
@@ -26,7 +27,7 @@ public class BuilderWriterTest {
     private BuilderWriter builderWriter;
 
     @Mock
-    private PsiHelper psiHelper;
+    private MockedStatic<PsiHelper> psiHelper;
 
     @Mock
     private BuilderPsiClassBuilder builderPsiClassBuilder;
@@ -44,8 +45,8 @@ public class BuilderWriterTest {
     void shouldExecuteCommandWithRunnable() {
         // given
         CommandProcessor commandProcessor = mock(CommandProcessor.class);
-        given(psiHelper.getCommandProcessor()).willReturn(commandProcessor);
-        given(context.getProject()).willReturn(project);
+        psiHelper.when(PsiHelper::getCommandProcessor).thenReturn(commandProcessor);
+        given(context.project()).willReturn(project);
 
         // when
         builderWriter.writeBuilder(context, existingBuilder);

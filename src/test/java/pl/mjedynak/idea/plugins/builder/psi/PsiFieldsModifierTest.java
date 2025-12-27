@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElementFactory;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierList;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypes;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class PsiFieldsModifierTest {
-
-    private final PsiFieldsModifier psiFieldsModifier = new PsiFieldsModifier();
-
     @Mock
     private PsiClass builderClass;
 
@@ -49,28 +46,28 @@ public class PsiFieldsModifierTest {
         // given
         PsiField psiFieldForSetters = mock(PsiField.class);
         given(psiFieldForSetters.getName()).willReturn("setterField");
-        given(psiFieldForSetters.getType()).willReturn(PsiType.INT);
+        given(psiFieldForSetters.getType()).willReturn(PsiTypes.intType());
         psiFieldsForSetters.add(psiFieldForSetters);
         PsiField copyPsiFieldForSetter = mock(PsiField.class);
         PsiModifierList copyPsiFieldForSetterModifierList = mock(PsiModifierList.class);
         given(copyPsiFieldForSetter.getModifierList()).willReturn(copyPsiFieldForSetterModifierList);
-        given(psiElementFactory.createField("setterField", PsiType.INT)).willReturn(copyPsiFieldForSetter);
+        given(psiElementFactory.createField("setterField", PsiTypes.intType())).willReturn(copyPsiFieldForSetter);
 
         PsiField psiFieldForConstructor = mock(PsiField.class);
         given(psiFieldForConstructor.getName()).willReturn("constructorField");
-        given(psiFieldForConstructor.getType()).willReturn(PsiType.BOOLEAN);
+        given(psiFieldForConstructor.getType()).willReturn(PsiTypes.booleanType());
         psiFieldsForConstructor.add(psiFieldForConstructor);
         PsiField copyPsiFieldForConstructor = mock(PsiField.class);
         PsiModifierList copyPsiFieldForConstructorModifierList = mock(PsiModifierList.class);
         given(copyPsiFieldForConstructor.getModifierList()).willReturn(copyPsiFieldForConstructorModifierList);
-        given(psiElementFactory.createField("constructorField", PsiType.BOOLEAN))
+        given(psiElementFactory.createField("constructorField", PsiTypes.booleanType()))
                 .willReturn(copyPsiFieldForConstructor);
 
         given(builderClass.getProject()).willReturn(project);
         given(project.getService(PsiElementFactory.class)).willReturn(psiElementFactory);
 
         // when
-        psiFieldsModifier.modifyFields(psiFieldsForSetters, psiFieldsForConstructor, builderClass);
+        PsiFieldsModifier.modifyFields(psiFieldsForSetters, psiFieldsForConstructor, builderClass);
 
         // then
         verify(builderClass).add(copyPsiFieldForSetter);

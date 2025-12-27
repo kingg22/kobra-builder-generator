@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.factory.PackageChooserDialogFactory;
 
@@ -28,7 +29,7 @@ public class ChooserDisplayerActionListenerTest {
     private ReferenceEditorComboWithBrowseButton comboWithBrowseButton;
 
     @Mock
-    private PackageChooserDialogFactory packageChooserDialogFactory;
+    private MockedStatic<PackageChooserDialogFactory> packageChooserDialogFactory;
 
     @Mock
     private Project project;
@@ -42,8 +43,9 @@ public class ChooserDisplayerActionListenerTest {
         String text = "text";
         String name = "name";
 
-        given(packageChooserDialogFactory.getPackageChooserDialog(anyString(), eq(project)))
-                .willReturn(chooser);
+        packageChooserDialogFactory
+                .when(() -> PackageChooserDialogFactory.getPackageChooserDialog(anyString(), eq(project)))
+                .thenReturn(chooser);
         given(comboWithBrowseButton.getText()).willReturn(text);
         given(chooser.getSelectedPackage()).willReturn(psiPackage);
         given(psiPackage.getQualifiedName()).willReturn(name);

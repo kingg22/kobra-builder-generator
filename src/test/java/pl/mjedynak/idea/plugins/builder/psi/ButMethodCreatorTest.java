@@ -3,7 +3,6 @@ package pl.mjedynak.idea.plugins.builder.psi;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementFactory;
@@ -11,13 +10,11 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.mjedynak.idea.plugins.builder.settings.CodeStyleSettings;
 
 @ExtendWith(MockitoExtension.class)
 public class ButMethodCreatorTest {
@@ -27,9 +24,6 @@ public class ButMethodCreatorTest {
 
     @Mock
     private PsiElementFactory psiElementFactory;
-
-    @Mock
-    private CodeStyleSettings settings;
 
     @Mock
     private PsiClass builderClass;
@@ -60,13 +54,6 @@ public class ButMethodCreatorTest {
 
     private final String srcClassFieldName = "className";
 
-    @BeforeEach
-    public void mockCodeStyleManager() {
-        given(settings.getFieldNamePrefix()).willReturn("m_");
-        given(settings.getParameterNamePrefix()).willReturn("p_");
-        setField(butMethodCreator, "codeStyleSettings", settings);
-    }
-
     private void initOtherCommonMocks() {
         given(builderClass.getMethods())
                 .willReturn(asList(method1, method2, method3).toArray(PsiMethod[]::new));
@@ -86,7 +73,7 @@ public class ButMethodCreatorTest {
         // given
         initOtherCommonMocks();
         given(psiElementFactory.createMethodFromText(
-                        "public Builder but() { return aBuilder().withAge(m_age); }", srcClass))
+                        "public Builder but() { return aBuilder().withAge(age); }", srcClass))
                 .willReturn(createdMethod);
 
         // when

@@ -1,5 +1,6 @@
 package pl.mjedynak.idea.plugins.builder.gui.displayer;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -9,8 +10,8 @@ import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import javax.swing.JList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.factory.PopupChooserBuilderFactory;
 
@@ -19,16 +20,13 @@ public class GoToBuilderPopupDisplayerTest {
 
     private static final String TITLE = "Builder not found";
 
-    @InjectMocks
-    private GoToBuilderPopupDisplayer popupDisplayer;
+    @Mock
+    private MockedStatic<PopupChooserBuilderFactory> popupChooserBuilderFactory;
 
     @Mock
-    private PopupChooserBuilderFactory popupChooserBuilderFactory;
+    private JList<?> list;
 
     @SuppressWarnings("rawtypes")
-    @Mock
-    private JList list;
-
     @Mock
     private PopupChooserBuilder popupChooserBuilder;
 
@@ -36,22 +34,21 @@ public class GoToBuilderPopupDisplayerTest {
     private Editor editor;
 
     @Mock
-    private Runnable runnable;
-
-    @Mock
     private JBPopup popup;
 
     @Test
     void shouldInvokePopupChooserBuilder() {
         // given
-        given(popupChooserBuilderFactory.getPopupChooserBuilder(list)).willReturn(popupChooserBuilder);
+        popupChooserBuilderFactory
+                .when(() -> PopupChooserBuilderFactory.getPopupChooserBuilder(list))
+                .thenReturn(popupChooserBuilder);
         given(popupChooserBuilder.setTitle(TITLE)).willReturn(popupChooserBuilder);
-        given(popupChooserBuilder.setItemChoosenCallback(runnable)).willReturn(popupChooserBuilder);
+        given(popupChooserBuilder.setItemChosenCallback(any(Runnable.class))).willReturn(popupChooserBuilder);
         given(popupChooserBuilder.setMovable(true)).willReturn(popupChooserBuilder);
         given(popupChooserBuilder.createPopup()).willReturn(popup);
 
         // when
-        popupDisplayer.displayPopupChooser(editor, list, runnable);
+        new GoToBuilderPopupDisplayer().displayPopupChooser(editor, list, () -> {});
 
         // then
         verify(popup).showInBestPositionFor(editor);

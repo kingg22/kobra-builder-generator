@@ -1,10 +1,8 @@
 package pl.mjedynak.idea.plugins.builder.finder;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mock.Strictness.LENIENT;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
@@ -14,7 +12,7 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.psi.PsiParameterListOwner;
 import com.intellij.psi.PsiPrimitiveType;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.PsiTypes;
 import com.intellij.psi.PsiVariable;
 import java.util.Collection;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.psi.BestConstructorSelector;
-import pl.mjedynak.idea.plugins.builder.settings.CodeStyleSettings;
-import pl.mjedynak.idea.plugins.builder.verifier.PsiFieldVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class BestConstructorSelectorTest {
@@ -35,9 +31,6 @@ public class BestConstructorSelectorTest {
     private static final String NAME_4 = "name4";
     private static final String NAME_5 = "name5";
     private static final PsiParameter[] EMPTY_PSI_PARAMETERS = new PsiParameter[0];
-
-    @Mock(strictness = LENIENT)
-    private CodeStyleSettings settings;
 
     @Mock
     private PsiClass psiClass;
@@ -99,25 +92,18 @@ public class BestConstructorSelectorTest {
     @Mock(strictness = LENIENT)
     private PsiParameter psiParameter4;
 
-    private final PsiFieldVerifier verifier = new PsiFieldVerifier();
-    private final BestConstructorSelector finder = new BestConstructorSelector(verifier);
-
     @BeforeEach
     public void initMock() {
-        setField(verifier, "codeStyleSettings", settings);
-        given(settings.getParameterNamePrefix()).willReturn(EMPTY);
-        given(settings.getFieldNamePrefix()).willReturn(EMPTY);
+        mockPsiVariable(psiField1, NAME_1, PsiTypes.intType());
+        mockPsiVariable(psiField2, NAME_2, PsiTypes.intType());
+        mockPsiVariable(psiField3, NAME_3, PsiTypes.intType());
+        mockPsiVariable(psiField4, NAME_4, PsiTypes.intType());
+        mockPsiVariable(psiField5, NAME_5, PsiTypes.intType());
 
-        mockPsiVariable(psiField1, NAME_1, PsiType.INT);
-        mockPsiVariable(psiField2, NAME_2, PsiType.INT);
-        mockPsiVariable(psiField3, NAME_3, PsiType.INT);
-        mockPsiVariable(psiField4, NAME_4, PsiType.INT);
-        mockPsiVariable(psiField5, NAME_5, PsiType.INT);
-
-        mockPsiVariable(psiParameter1, NAME_1, PsiType.INT);
-        mockPsiVariable(psiParameter2, NAME_2, PsiType.INT);
-        mockPsiVariable(psiParameter3, NAME_3, PsiType.INT);
-        mockPsiVariable(psiParameter4, NAME_4, PsiType.INT);
+        mockPsiVariable(psiParameter1, NAME_1, PsiTypes.intType());
+        mockPsiVariable(psiParameter2, NAME_2, PsiTypes.intType());
+        mockPsiVariable(psiParameter3, NAME_3, PsiTypes.intType());
+        mockPsiVariable(psiParameter4, NAME_4, PsiTypes.intType());
 
         mockConstructor(constructor0, parameterList0, EMPTY_PSI_PARAMETERS);
         mockConstructor(constructor1, parameterList1, psiParameter4);
@@ -183,7 +169,7 @@ public class BestConstructorSelectorTest {
         given(psiClass.getConstructors()).willReturn(psiMethods);
 
         // when
-        PsiMethod bestConstructor = finder.getBestConstructor(psiFields, psiClass);
+        PsiMethod bestConstructor = BestConstructorSelector.getBestConstructor(psiFields, psiClass);
 
         // then
         assertThat(bestConstructor).isEqualTo(expectedConstructor);

@@ -2,28 +2,23 @@ package pl.mjedynak.idea.plugins.builder.factory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
 
 import com.intellij.ide.util.PackageChooserDialog;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class PackageChooserDialogFactoryTest {
 
-    @Spy
-    private PackageChooserDialogFactory packageChooserDialogFactory;
+    @Mock
+    private MockedStatic<PackageChooserDialogFactory> packageChooserDialogFactory;
 
     @Mock
     private Project project;
-
-    @Mock
-    private PsiManager psiManager;
 
     @Mock
     private PackageChooserDialog packageChooserDialog;
@@ -33,10 +28,12 @@ public class PackageChooserDialogFactoryTest {
         // given
         String title = "title";
         given(packageChooserDialog.getTitle()).willReturn(title);
-        doReturn(packageChooserDialog).when(packageChooserDialogFactory).createNewInstance(title, project);
+        packageChooserDialogFactory
+                .when(() -> PackageChooserDialogFactory.getPackageChooserDialog(title, project))
+                .thenReturn(packageChooserDialog);
 
         // when
-        PackageChooserDialog result = packageChooserDialogFactory.getPackageChooserDialog(title, project);
+        PackageChooserDialog result = PackageChooserDialogFactory.getPackageChooserDialog(title, project);
 
         // then
         assertThat(result).isEqualTo(packageChooserDialog);

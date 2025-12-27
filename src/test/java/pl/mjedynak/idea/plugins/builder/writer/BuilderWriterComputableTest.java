@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mock.Strictness.LENIENT;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.project.Project;
@@ -18,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.gui.helper.GuiHelper;
 import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
@@ -31,10 +31,10 @@ public class BuilderWriterComputableTest {
     private BuilderWriterComputable builderWriterComputable;
 
     @Mock
-    private PsiHelper psiHelper;
+    private MockedStatic<PsiHelper> psiHelper;
 
     @Mock
-    private GuiHelper guiHelper;
+    private MockedStatic<GuiHelper> guiHelper;
 
     @Mock
     private BuilderPsiClassBuilder builderPsiClassBuilder;
@@ -63,11 +63,9 @@ public class BuilderWriterComputableTest {
     @BeforeEach
     public void setUp() {
         builderWriterComputable = new BuilderWriterComputable(builderPsiClassBuilder, context, existingBuilder);
-        given(context.getProject()).willReturn(project);
-        given(context.getMethodPrefix()).willReturn(METHOD_PREFIX);
+        given(context.project()).willReturn(project);
+        given(context.methodPrefix()).willReturn(METHOD_PREFIX);
         given(context.isInner()).willReturn(false);
-        setField(builderWriterComputable, "psiHelper", psiHelper);
-        setField(builderWriterComputable, "guiHelper", guiHelper);
     }
 
     @Test
@@ -80,8 +78,8 @@ public class BuilderWriterComputableTest {
         PsiElement result = builderWriterComputable.compute();
 
         // then
-        verify(guiHelper).includeCurrentPlaceAsChangePlace(project);
-        verify(guiHelper).positionCursor(project, psiFile, psiElement);
+        guiHelper.verify(() -> GuiHelper.includeCurrentPlaceAsChangePlace(project));
+        guiHelper.verify(() -> GuiHelper.positionCursor(project, psiFile, psiElement));
         assertThat(result).isInstanceOf(PsiClass.class);
         assertThat((PsiClass) result).isEqualTo(builderClass);
     }
@@ -90,7 +88,7 @@ public class BuilderWriterComputableTest {
     void shouldIncludeCurrentPlaceAsChangePlaceAndCreateInnerBuilder() {
         // given
         given(context.isInner()).willReturn(true);
-        given(context.getPsiClassFromEditor()).willReturn(srcClass);
+        given(context.psiClassFromEditor()).willReturn(srcClass);
         given(builderPsiClassBuilder.anInnerBuilder(context)).willReturn(builderPsiClassBuilder);
         mockBuilder();
 
@@ -98,7 +96,7 @@ public class BuilderWriterComputableTest {
         PsiElement result = builderWriterComputable.compute();
 
         // then
-        verify(guiHelper).includeCurrentPlaceAsChangePlace(project);
+        guiHelper.verify(() -> GuiHelper.includeCurrentPlaceAsChangePlace(project));
         assertThat(result).isInstanceOf(PsiClass.class);
         assertThat((PsiClass) result).isEqualTo(builderClass);
     }
@@ -108,7 +106,7 @@ public class BuilderWriterComputableTest {
         // given
         given(builderPsiClassBuilder.aBuilder(context)).willThrow(IncorrectOperationException.class);
         Application application = mock(Application.class);
-        given(psiHelper.getApplication()).willReturn(application);
+        psiHelper.when(PsiHelper::getApplication).thenReturn(application);
 
         // when
         builderWriterComputable.compute();

@@ -40,17 +40,17 @@ public class PsiFieldsForBuilderTest {
 
     @Test
     void shouldGetThreeListsOfFieldsAndBestConstructor() {
-        assertThat(psiFieldsForBuilder.getFieldsForSetters()).isEqualTo(psiFieldsForSetters);
-        assertThat(psiFieldsForBuilder.getFieldsForConstructor()).isEqualTo(psiFieldsForConstructor);
-        assertThat(psiFieldsForBuilder.getAllSelectedFields()).isEqualTo(allSelectedPsiFields);
-        assertThat(psiFieldsForBuilder.getBestConstructor()).isEqualTo(bestConstructor);
+        assertThat(psiFieldsForBuilder.fieldsForSetters()).isEqualTo(psiFieldsForSetters);
+        assertThat(psiFieldsForBuilder.fieldsForConstructor()).isEqualTo(psiFieldsForConstructor);
+        assertThat(psiFieldsForBuilder.allSelectedFields()).isEqualTo(allSelectedPsiFields);
+        assertThat(psiFieldsForBuilder.bestConstructor()).isEqualTo(bestConstructor);
     }
 
     @Test
     void shouldThrowExceptionWhenTryingToModifySettersList() {
         assertThrows(UnsupportedOperationException.class, () -> {
             // given
-            List<PsiField> fieldsForSetters = psiFieldsForBuilder.getFieldsForSetters();
+            List<PsiField> fieldsForSetters = psiFieldsForBuilder.fieldsForSetters();
 
             // when
             fieldsForSetters.remove(0);
@@ -61,7 +61,7 @@ public class PsiFieldsForBuilderTest {
     void shouldThrowExceptionWhenTryingToModifyConstructorList() {
         assertThrows(UnsupportedOperationException.class, () -> {
             // given
-            List<PsiField> fieldsForConstructor = psiFieldsForBuilder.getFieldsForConstructor();
+            List<PsiField> fieldsForConstructor = psiFieldsForBuilder.fieldsForConstructor();
 
             // when
             fieldsForConstructor.remove(0);
@@ -71,7 +71,7 @@ public class PsiFieldsForBuilderTest {
     @Test
     void shouldThrowExceptionWhenTryingToModifyAllSelectedFieldsList() {
         // given
-        List<PsiField> allSelectedFields = psiFieldsForBuilder.getAllSelectedFields();
+        List<PsiField> allSelectedFields = psiFieldsForBuilder.allSelectedFields();
 
         // when
         UnsupportedOperationException exception =

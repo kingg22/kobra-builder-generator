@@ -1,11 +1,9 @@
 package pl.mjedynak.idea.plugins.builder.writer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.getField;
-import static org.springframework.test.util.ReflectionTestUtils.setField;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.psi.PsiClass;
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
@@ -24,7 +23,7 @@ public class BuilderWriterRunnableTest {
     private BuilderWriterRunnable builderWriterRunnable;
 
     @Mock
-    private PsiHelper psiHelper;
+    private MockedStatic<PsiHelper> psiHelper;
 
     @Mock
     private BuilderPsiClassBuilder builderPsiClassBuilder;
@@ -38,14 +37,13 @@ public class BuilderWriterRunnableTest {
     @BeforeEach
     public void setUp() {
         builderWriterRunnable = new BuilderWriterRunnable(builderPsiClassBuilder, context, existingBuilder);
-        setField(builderWriterRunnable, "psiHelper", psiHelper);
     }
 
     @Test
     void shouldRunWriteActionWithBuilderWriterComputable() {
         // given
         Application application = mock(Application.class);
-        given(psiHelper.getApplication()).willReturn(application);
+        psiHelper.when(PsiHelper::getApplication).thenReturn(application);
 
         // when
         builderWriterRunnable.run();

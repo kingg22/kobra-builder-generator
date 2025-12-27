@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
@@ -37,7 +38,7 @@ public class SelectDirectoryTest {
     private CreateBuilderDialog createBuilderDialog;
 
     @Mock
-    private PsiHelper psiHelper;
+    private MockedStatic<PsiHelper> psiHelper;
 
     @Mock
     private Module module;
@@ -50,16 +51,18 @@ public class SelectDirectoryTest {
 
     @BeforeEach
     public void setUp() {
-        given(psiHelper.getDirectoryFromModuleAndPackageName(module, PACKAGE_NAME))
-                .willReturn(targetDirectory);
+        psiHelper
+                .when(() -> PsiHelper.getDirectoryFromModuleAndPackageName(module, PACKAGE_NAME))
+                .thenReturn(targetDirectory);
     }
 
     @Test
     void shouldDoNothingIfTargetDirectoryReturnedByPsiHelperIsNull() {
         // given
-        selectDirectory = new SelectDirectory(createBuilderDialog, psiHelper, module, PACKAGE_NAME, CLASS_NAME, null);
-        given(psiHelper.getDirectoryFromModuleAndPackageName(module, PACKAGE_NAME))
-                .willReturn(null);
+        selectDirectory = new SelectDirectory(createBuilderDialog, module, PACKAGE_NAME, CLASS_NAME, null);
+        psiHelper
+                .when(() -> PsiHelper.getDirectoryFromModuleAndPackageName(module, PACKAGE_NAME))
+                .thenReturn(null);
 
         // when
         selectDirectory.run();
@@ -71,8 +74,10 @@ public class SelectDirectoryTest {
     @Test
     void shouldSetTargetDirectoryOnCaller() {
         // given
-        selectDirectory = new SelectDirectory(createBuilderDialog, psiHelper, module, PACKAGE_NAME, CLASS_NAME, null);
-        given(psiHelper.checkIfClassCanBeCreated(targetDirectory, CLASS_NAME)).willReturn(null);
+        selectDirectory = new SelectDirectory(createBuilderDialog, module, PACKAGE_NAME, CLASS_NAME, null);
+        psiHelper
+                .when(() -> PsiHelper.checkIfClassCanBeCreated(targetDirectory, CLASS_NAME))
+                .thenReturn(null);
 
         // when
         selectDirectory.run();
@@ -81,16 +86,15 @@ public class SelectDirectoryTest {
         verify(createBuilderDialog).setTargetDirectory(targetDirectory);
     }
 
-    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldThrowExceptionWhenPsiHelperCheckReturnsErrorString() {
         Throwable exception = assertThrows(IncorrectOperationException.class, () -> {
 
             // given
-            selectDirectory =
-                    new SelectDirectory(createBuilderDialog, psiHelper, module, PACKAGE_NAME, CLASS_NAME, null);
-            given(psiHelper.checkIfClassCanBeCreated(targetDirectory, CLASS_NAME))
-                    .willReturn(ERROR_MESSAGE);
+            selectDirectory = new SelectDirectory(createBuilderDialog, module, PACKAGE_NAME, CLASS_NAME, null);
+            psiHelper
+                    .when(() -> PsiHelper.checkIfClassCanBeCreated(targetDirectory, CLASS_NAME))
+                    .thenReturn(ERROR_MESSAGE);
 
             // when
             selectDirectory.run();
@@ -98,13 +102,14 @@ public class SelectDirectoryTest {
         assertTrue(exception.getMessage().contains(ERROR_MESSAGE));
     }
 
-    @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldThrowExceptionWhenPsiHelperThrowsIncorrectOperationException() {
         // given
-        selectDirectory = new SelectDirectory(createBuilderDialog, psiHelper, module, PACKAGE_NAME, CLASS_NAME, null);
+        selectDirectory = new SelectDirectory(createBuilderDialog, module, PACKAGE_NAME, CLASS_NAME, null);
         IncorrectOperationException exception = new IncorrectOperationException(ERROR_MESSAGE);
-        given(psiHelper.checkIfClassCanBeCreated(targetDirectory, CLASS_NAME)).willThrow(exception);
+        psiHelper
+                .when(() -> PsiHelper.checkIfClassCanBeCreated(targetDirectory, CLASS_NAME))
+                .thenThrow(exception);
 
         // when
         Throwable expectedException = assertThrows(IncorrectOperationException.class, () -> selectDirectory.run());
@@ -116,15 +121,14 @@ public class SelectDirectoryTest {
     @Test
     void shouldNotCheckIfClassCanBeCreatedIfExistingBuilderMustBeDeletedAndClassToCreateIsTheSame() {
         // given
-        selectDirectory =
-                new SelectDirectory(createBuilderDialog, psiHelper, module, PACKAGE_NAME, CLASS_NAME, existingBuilder);
+        selectDirectory = new SelectDirectory(createBuilderDialog, module, PACKAGE_NAME, CLASS_NAME, existingBuilder);
         mockIsClassToCreateSameAsBuilderToDelete();
 
         // when
         selectDirectory.run();
 
         // then
-        verify(psiHelper, never()).checkIfClassCanBeCreated(any(PsiDirectory.class), anyString());
+        psiHelper.verify(() -> PsiHelper.checkIfClassCanBeCreated(any(PsiDirectory.class), anyString()), never());
     }
 
     private void mockIsClassToCreateSameAsBuilderToDelete() {
