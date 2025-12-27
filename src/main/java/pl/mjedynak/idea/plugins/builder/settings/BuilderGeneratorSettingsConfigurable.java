@@ -61,6 +61,7 @@ public class BuilderGeneratorSettingsConfigurable implements Configurable {
         mySettingsComponent.setAddCopyConstructor(settings.isAddCopyConstructor);
     }
 
+    @SuppressWarnings("NullAway")
     @Override
     public void disposeUIResources() {
         mySettingsComponent = null;
