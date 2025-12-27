@@ -14,7 +14,12 @@ public class BuilderWriter {
 
     private final BuilderPsiClassBuilder builderPsiClassBuilder;
 
-    public BuilderWriter(BuilderPsiClassBuilder builderPsiClassBuilder) {
+    public BuilderWriter() {
+        this(new BuilderPsiClassBuilder());
+    }
+
+    @VisibleForTesting
+    BuilderWriter(BuilderPsiClassBuilder builderPsiClassBuilder) {
         this.builderPsiClassBuilder = builderPsiClassBuilder;
     }
 
