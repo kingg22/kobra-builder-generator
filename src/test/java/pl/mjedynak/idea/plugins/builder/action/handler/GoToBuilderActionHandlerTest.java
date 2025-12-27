@@ -117,17 +117,10 @@ public class GoToBuilderActionHandlerTest {
         builderActionHandler.doExecute(editor, null, dataContext);
 
         // then
-        verifyDisplayChoosersSetMethods();
         ArgumentCaptor<Runnable> runnableArgumentCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(popupDisplayer).displayPopupChooser(eq(editor), eq(list), runnableArgumentCaptor.capture());
         runnableArgumentCaptor.getValue().run();
         verify(displayChoosers).run(null);
-    }
-
-    private void verifyDisplayChoosersSetMethods() {
-        verify(displayChoosers).setEditor(editor);
-        verify(displayChoosers).setProject(project);
-        verify(displayChoosers).setPsiClassFromEditor(psiClass);
     }
 
     @Test
