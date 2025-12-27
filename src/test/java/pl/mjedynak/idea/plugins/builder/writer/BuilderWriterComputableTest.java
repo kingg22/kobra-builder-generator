@@ -37,6 +37,9 @@ public class BuilderWriterComputableTest {
     private MockedStatic<GuiHelper> guiHelper;
 
     @Mock
+    private MockedStatic<BuilderPsiClassBuilder> builderPsiClassBuilderMockedStatic;
+
+    @Mock
     private BuilderPsiClassBuilder builderPsiClassBuilder;
 
     @Mock
@@ -62,7 +65,7 @@ public class BuilderWriterComputableTest {
 
     @BeforeEach
     public void setUp() {
-        builderWriterComputable = new BuilderWriterComputable(builderPsiClassBuilder, context, existingBuilder);
+        builderWriterComputable = new BuilderWriterComputable(context, existingBuilder);
         given(context.project()).willReturn(project);
         given(context.methodPrefix()).willReturn(METHOD_PREFIX);
         given(context.isInner()).willReturn(false);
@@ -71,7 +74,9 @@ public class BuilderWriterComputableTest {
     @Test
     void shouldIncludeCurrentPlaceAsChangePlaceAndNavigateToCreatedBuilder() {
         // given
-        given(builderPsiClassBuilder.aBuilder(context)).willReturn(builderPsiClassBuilder);
+        builderPsiClassBuilderMockedStatic
+                .when(() -> BuilderPsiClassBuilder.aBuilder(context))
+                .thenReturn(builderPsiClassBuilder);
         mockBuilder();
 
         // when
@@ -89,7 +94,9 @@ public class BuilderWriterComputableTest {
         // given
         given(context.isInner()).willReturn(true);
         given(context.psiClassFromEditor()).willReturn(srcClass);
-        given(builderPsiClassBuilder.anInnerBuilder(context)).willReturn(builderPsiClassBuilder);
+        builderPsiClassBuilderMockedStatic
+                .when(() -> BuilderPsiClassBuilder.anInnerBuilder(context))
+                .thenReturn(builderPsiClassBuilder);
         mockBuilder();
 
         // when
@@ -104,7 +111,9 @@ public class BuilderWriterComputableTest {
     @Test
     void shouldInvokeBuilderWriterErrorRunnableWhenExceptionOccurs() {
         // given
-        given(builderPsiClassBuilder.aBuilder(context)).willThrow(IncorrectOperationException.class);
+        builderPsiClassBuilderMockedStatic
+                .when(() -> BuilderPsiClassBuilder.aBuilder(context))
+                .thenThrow(IncorrectOperationException.class);
         Application application = mock(Application.class);
         psiHelper.when(PsiHelper::getApplication).thenReturn(application);
 
