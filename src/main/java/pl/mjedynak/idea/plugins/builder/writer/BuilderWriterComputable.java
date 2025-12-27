@@ -6,20 +6,21 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pl.mjedynak.idea.plugins.builder.gui.helper.GuiHelper;
 import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
 record BuilderWriterComputable(
-        BuilderPsiClassBuilder builderPsiClassBuilder, BuilderContext context, PsiClass existingBuilder)
-        implements Computable<PsiElement> {
+        @NotNull BuilderContext context, @Nullable PsiClass existingBuilder) implements Computable<PsiElement> {
 
     @Override
-    public PsiElement compute() {
+    public @Nullable PsiElement compute() {
         return createBuilder();
     }
 
-    private PsiElement createBuilder() {
+    private @Nullable PsiElement createBuilder() {
         try {
             GuiHelper.includeCurrentPlaceAsChangePlace(context.project());
             PsiClass targetClass;
@@ -42,8 +43,7 @@ record BuilderWriterComputable(
     }
 
     private PsiClass getInnerBuilderPsiClass() {
-        BuilderPsiClassBuilder builder = builderPsiClassBuilder
-                .anInnerBuilder(context)
+        BuilderPsiClassBuilder builder = BuilderPsiClassBuilder.anInnerBuilder(context)
                 .withFields()
                 .withConstructor()
                 .withInitializingMethod()
@@ -54,8 +54,7 @@ record BuilderWriterComputable(
     }
 
     private PsiClass getBuilderPsiClass() {
-        BuilderPsiClassBuilder builder = builderPsiClassBuilder
-                .aBuilder(context)
+        BuilderPsiClassBuilder builder = BuilderPsiClassBuilder.aBuilder(context)
                 .withFields()
                 .withConstructor()
                 .withInitializingMethod()
@@ -77,14 +76,13 @@ record BuilderWriterComputable(
         }
     }
 
-    private void navigateToClassAndPositionCursor(Project project, PsiClass targetClass) {
+    private void navigateToClassAndPositionCursor(@NotNull Project project, @NotNull PsiClass targetClass) {
         GuiHelper.positionCursor(project, targetClass.getContainingFile(), targetClass.getLBrace());
     }
 
-    private void showErrorMessage(Project project, String className, String message) {
-        BuilderWriterErrorRunnable builderWriterErrorRunnable = message == null
-                ? new BuilderWriterErrorRunnable(project, className)
-                : new BuilderWriterErrorRunnable(project, className, message);
+    private void showErrorMessage(Project project, String className, @Nullable String message) {
+        BuilderWriterErrorRunnable builderWriterErrorRunnable =
+                new BuilderWriterErrorRunnable(project, className, message);
 
         Application application = PsiHelper.getApplication();
         application.invokeLater(builderWriterErrorRunnable);
