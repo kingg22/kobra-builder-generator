@@ -2,44 +2,36 @@ package pl.mjedynak.idea.plugins.builder.gui;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CustomShortcutSet;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiNameHelper;
 import com.intellij.psi.PsiPackage;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.RecentsManager;
 import com.intellij.ui.ReferenceEditorComboWithBrowseButton;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.ui.JBUI;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import javax.swing.Action;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import org.jetbrains.annotations.NotNull;
-import pl.mjedynak.idea.plugins.builder.factory.PackageChooserDialogFactory;
+import org.jetbrains.annotations.Nullable;
 import pl.mjedynak.idea.plugins.builder.factory.ReferenceEditorComboWithBrowseButtonFactory;
 import pl.mjedynak.idea.plugins.builder.gui.helper.GuiHelper;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
@@ -47,19 +39,17 @@ import pl.mjedynak.idea.plugins.builder.settings.BuilderGeneratorSettingsState;
 
 public class CreateBuilderDialog extends DialogWrapper {
 
-    static final String RECENTS_KEY = "CreateBuilderDialog.RecentsKey";
+    private static final String RECENTS_KEY = "CreateBuilderDialog.RecentsKey";
     private static final int WIDTH = 40;
 
     private static BuilderGeneratorSettingsState defaultStates = BuilderGeneratorSettingsState.getInstance();
 
-    private final PsiHelper psiHelper;
-    private final GuiHelper guiHelper;
-    private final Project project;
-    private final PsiClass sourceClass;
-    private final JTextField targetClassNameField;
-    private final JTextField targetMethodPrefix;
+    private final @NotNull Project project;
+    private final @NotNull PsiClass sourceClass;
+    private final @NotNull JTextField targetClassNameField;
+    private final @NotNull JTextField targetMethodPrefix;
     private final ReferenceEditorComboWithBrowseButton targetPackageField;
-    private final PsiClass existingBuilder;
+    private final @Nullable PsiClass existingBuilder;
     private PsiDirectory targetDirectory;
     private JCheckBox innerBuilder;
     private JCheckBox butMethod;
@@ -67,18 +57,13 @@ public class CreateBuilderDialog extends DialogWrapper {
     private JCheckBox copyConstructor;
 
     public CreateBuilderDialog(
-            Project project,
-            String title,
-            PsiClass sourceClass,
-            String targetClassName,
-            PsiPackage targetPackage,
-            PsiHelper psiHelper,
-            GuiHelper guiHelper,
-            ReferenceEditorComboWithBrowseButtonFactory referenceEditorComboWithBrowseButtonFactory,
-            PsiClass existingBuilder) {
+            @NotNull Project project,
+            @Nullable String title,
+            @NotNull PsiClass sourceClass,
+            @Nullable String targetClassName,
+            @Nullable PsiPackage targetPackage,
+            @Nullable PsiClass existingBuilder) {
         super(project, true);
-        this.psiHelper = psiHelper;
-        this.guiHelper = guiHelper;
         this.project = project;
         this.sourceClass = sourceClass;
         this.existingBuilder = existingBuilder;
@@ -88,10 +73,9 @@ public class CreateBuilderDialog extends DialogWrapper {
         setPreferredSize(targetMethodPrefix);
 
         String targetPackageName = (targetPackage != null) ? targetPackage.getQualifiedName() : "";
-        targetPackageField = referenceEditorComboWithBrowseButtonFactory.getReferenceEditorComboWithBrowseButton(
+        targetPackageField = ReferenceEditorComboWithBrowseButtonFactory.getReferenceEditorComboWithBrowseButton(
                 project, targetPackageName, RECENTS_KEY);
-        targetPackageField.addActionListener(
-                new ChooserDisplayerActionListener(targetPackageField, new PackageChooserDialogFactory(), project));
+        targetPackageField.addActionListener(new ChooserDisplayerActionListener(targetPackageField, project));
         setTitle(title);
     }
 
@@ -110,7 +94,7 @@ public class CreateBuilderDialog extends DialogWrapper {
 
     @NotNull
     @Override
-    protected Action[] createActions() {
+    protected Action @NotNull [] createActions() {
         return new Action[] {getOKAction(), getCancelAction(), getHelpAction()};
     }
 
@@ -122,7 +106,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         panel.setBorder(IdeBorderFactory.createBorder());
 
         // Class name
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 0;
         gbConstraints.weightx = 0;
         gbConstraints.gridwidth = 1;
@@ -130,7 +114,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.anchor = GridBagConstraints.WEST;
         panel.add(new JLabel("Class name"), gbConstraints);
 
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
         gbConstraints.gridwidth = 1;
@@ -139,17 +123,14 @@ public class CreateBuilderDialog extends DialogWrapper {
         panel.add(targetClassNameField, gbConstraints);
         targetClassNameField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
-            protected void textChanged(DocumentEvent e) {
-                getOKAction()
-                        .setEnabled(JavaPsiFacade.getInstance(project)
-                                .getNameHelper()
-                                .isIdentifier(getClassName()));
+            protected void textChanged(@NotNull DocumentEvent e) {
+                getOKAction().setEnabled(PsiNameHelper.getInstance(project).isIdentifier(getClassName()));
             }
         });
         // Class name
 
         // Method prefix
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 0;
         gbConstraints.gridy = 2;
         gbConstraints.weightx = 0;
@@ -158,7 +139,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.anchor = GridBagConstraints.WEST;
         panel.add(new JLabel("Method prefix"), gbConstraints);
 
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
         gbConstraints.gridwidth = 1;
@@ -178,21 +159,11 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
 
-        AnAction clickAction = new AnAction() {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
-                targetPackageField.getButton().doClick();
-            }
-        };
-        clickAction.registerCustomShortcutSet(
-                new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_DOWN_MASK)),
-                targetPackageField.getChildComponent());
-
         addInnerPanelForDestinationPackageField(panel, gbConstraints);
         // Destination package
 
         // Inner builder
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 0;
         gbConstraints.weightx = 0;
         gbConstraints.gridy = 4;
@@ -200,7 +171,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.anchor = GridBagConstraints.WEST;
         panel.add(new JLabel("Inner builder"), gbConstraints);
 
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
         gbConstraints.gridwidth = 1;
@@ -209,17 +180,12 @@ public class CreateBuilderDialog extends DialogWrapper {
 
         innerBuilder = new JCheckBox();
         innerBuilder.setSelected(defaultStates.isInnerBuilder);
-        innerBuilder.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                targetPackageField.setEnabled(!innerBuilder.isSelected());
-            }
-        });
+        innerBuilder.addActionListener(e -> targetPackageField.setEnabled(!innerBuilder.isSelected()));
         panel.add(innerBuilder, gbConstraints);
         // Inner builder
 
         // but method
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 0;
         gbConstraints.weightx = 0;
         gbConstraints.gridy = 5;
@@ -227,7 +193,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.anchor = GridBagConstraints.WEST;
         panel.add(new JLabel("'but' method"), gbConstraints);
 
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
         gbConstraints.gridwidth = 1;
@@ -239,7 +205,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         // but method
 
         // useSingleField
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 0;
         gbConstraints.weightx = 0;
         gbConstraints.gridy = 6;
@@ -247,7 +213,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.anchor = GridBagConstraints.WEST;
         panel.add(new JLabel("Use single field"), gbConstraints);
 
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
         gbConstraints.gridwidth = 1;
@@ -259,7 +225,7 @@ public class CreateBuilderDialog extends DialogWrapper {
         // useSingleField
 
         // copy constructor
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
+        gbConstraints.insets = JBUI.insets(4, 8);
         gbConstraints.gridx = 0;
         gbConstraints.weightx = 0;
         gbConstraints.gridy = 7;
@@ -267,7 +233,6 @@ public class CreateBuilderDialog extends DialogWrapper {
         gbConstraints.anchor = GridBagConstraints.WEST;
         panel.add(new JLabel("Add copy constructor"), gbConstraints);
 
-        gbConstraints.insets = new Insets(4, 8, 4, 8);
         gbConstraints.gridx = 1;
         gbConstraints.weightx = 1;
         gbConstraints.gridwidth = 1;
@@ -295,16 +260,16 @@ public class CreateBuilderDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         registerEntry(RECENTS_KEY, targetPackageField.getText());
-        Module module = psiHelper.findModuleForPsiClass(sourceClass, project);
+        Module module = PsiHelper.findModuleForPsiClass(sourceClass, project);
         if (module == null) {
             throw new IllegalStateException("Cannot find module for class " + sourceClass.getName());
         }
         try {
             checkIfSourceClassHasZeroArgsConstructorWhenUsingSingleField();
             checkIfClassCanBeCreated(module);
-            callSuper();
+            super.doOKAction();
         } catch (IncorrectOperationException e) {
-            guiHelper.showMessageDialog(project, e.getMessage(), CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+            GuiHelper.showMessageDialog(project, e.getMessage(), CommonBundle.getErrorTitle(), Messages.getErrorIcon());
         }
     }
 
@@ -326,26 +291,20 @@ public class CreateBuilderDialog extends DialogWrapper {
 
     void checkIfClassCanBeCreated(Module module) {
         if (!isInnerBuilder()) {
-            SelectDirectory selectDirectory =
-                    new SelectDirectory(this, psiHelper, module, getPackageName(), getClassName(), existingBuilder);
-            executeCommand(selectDirectory);
+            executeCommand(new SelectDirectory(this, module, getPackageName(), getClassName(), existingBuilder));
         }
     }
 
-    void registerEntry(String key, String entry) {
+    private void registerEntry(String key, String entry) {
         RecentsManager.getInstance(project).registerRecentEntry(key, entry);
     }
 
-    void callSuper() {
-        super.doOKAction();
-    }
-
-    void executeCommand(SelectDirectory selectDirectory) {
+    private void executeCommand(SelectDirectory selectDirectory) {
         CommandProcessor.getInstance()
                 .executeCommand(project, selectDirectory, CodeInsightBundle.message("create.directory.command"), null);
     }
 
-    private String getPackageName() {
+    private @NotNull String getPackageName() {
         String name = targetPackageField.getText();
         return (name != null) ? name.trim() : "";
     }
