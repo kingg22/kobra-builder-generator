@@ -197,10 +197,11 @@
                 instance="pl.mjedynak.idea.plugins.builder.settings.BuilderGeneratorSettingsConfigurable"
                 id="pl.mjedynak.idea.plugins.builder.settings.BuilderGeneratorSettingsConfigurable"
                 displayName="Builder Generation Defaults"/>
-
+        <!--
         <editorActionHandler action="GoToBuilder"
                              implementationClass="pl.mjedynak.idea.plugins.builder.action.handler.GoToBuilderActionHandler"/>
         <editorActionHandler action="GenerateBuilder"
                              implementationClass="pl.mjedynak.idea.plugins.builder.action.handler.GenerateBuilderActionHandler"/>
+         -->
     </extensions>
 </idea-plugin>
