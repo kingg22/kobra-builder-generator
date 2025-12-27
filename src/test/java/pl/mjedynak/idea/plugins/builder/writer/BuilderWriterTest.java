@@ -2,6 +2,7 @@ package pl.mjedynak.idea.plugins.builder.writer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,24 +13,16 @@ import com.intellij.psi.PsiClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
 @ExtendWith(MockitoExtension.class)
 public class BuilderWriterTest {
 
-    @InjectMocks
-    private BuilderWriter builderWriter;
-
     @Mock
     private MockedStatic<PsiHelper> psiHelper;
-
-    @Mock
-    private BuilderPsiClassBuilder builderPsiClassBuilder;
 
     @Mock
     private BuilderContext context;
@@ -48,7 +41,7 @@ public class BuilderWriterTest {
         given(context.project()).willReturn(project);
 
         // when
-        builderWriter.writeBuilder(context, existingBuilder);
+        BuilderWriter.writeBuilder(context, existingBuilder);
 
         // then
         ArgumentCaptor<BuilderWriterRunnable> builderWriterRunnableArgumentCaptor =
@@ -58,9 +51,7 @@ public class BuilderWriterTest {
                         eq(project),
                         builderWriterRunnableArgumentCaptor.capture(),
                         eq(BuilderWriter.CREATE_BUILDER_STRING),
-                        eq(builderWriter));
-        assertThat(builderWriterRunnableArgumentCaptor.getValue().getBuilderPsiClassBuilder())
-                .isEqualTo(builderPsiClassBuilder);
+                        isNull());
         assertThat(builderWriterRunnableArgumentCaptor.getValue().getContext()).isEqualTo(context);
         assertThat(builderWriterRunnableArgumentCaptor.getValue().getExistingBuilder())
                 .isEqualTo(existingBuilder);

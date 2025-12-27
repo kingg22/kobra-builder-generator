@@ -13,7 +13,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.mjedynak.idea.plugins.builder.psi.BuilderPsiClassBuilder;
 import pl.mjedynak.idea.plugins.builder.psi.PsiHelper;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,9 +24,6 @@ public class BuilderWriterRunnableTest {
     private MockedStatic<PsiHelper> psiHelper;
 
     @Mock
-    private BuilderPsiClassBuilder builderPsiClassBuilder;
-
-    @Mock
     private BuilderContext context;
 
     @Mock
@@ -35,7 +31,7 @@ public class BuilderWriterRunnableTest {
 
     @BeforeEach
     public void setUp() {
-        builderWriterRunnable = new BuilderWriterRunnable(builderPsiClassBuilder, context, existingBuilder);
+        builderWriterRunnable = new BuilderWriterRunnable(context, existingBuilder);
     }
 
     @Test
@@ -51,8 +47,6 @@ public class BuilderWriterRunnableTest {
         ArgumentCaptor<BuilderWriterComputable> builderWriterComputableArgumentCaptor =
                 ArgumentCaptor.forClass(BuilderWriterComputable.class);
         verify(application).runWriteAction(builderWriterComputableArgumentCaptor.capture());
-        assertThat(builderWriterComputableArgumentCaptor.getValue().builderPsiClassBuilder())
-                .isEqualTo(builderPsiClassBuilder);
         assertThat(builderWriterComputableArgumentCaptor.getValue().context()).isEqualTo(context);
         assertThat(builderWriterComputableArgumentCaptor.getValue().existingBuilder())
                 .isEqualTo(existingBuilder);
