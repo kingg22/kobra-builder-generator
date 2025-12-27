@@ -25,11 +25,7 @@ public class DisplayChoosers {
     private @NotNull PsiClass psiClassFromEditor;
     private @NotNull Project project;
     private @NotNull Editor editor;
-    private final @NotNull BuilderWriter builderWriter;
-
-    public DisplayChoosers(@NotNull BuilderWriter builderWriter) {
-        this.builderWriter = builderWriter;
-    }
+    private final @NotNull BuilderWriter builderWriter = new BuilderWriter();
 
     public void run(@Nullable PsiClass existingBuilder) {
         CreateBuilderDialog createBuilderDialog = showDialog(existingBuilder);
