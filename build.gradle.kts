@@ -1,48 +1,46 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+
 plugins {
-    id("org.jetbrains.intellij") version "1.17.1"
-    id("com.diffplug.spotless") version "6.25.0"
+    java
+    id("org.jetbrains.intellij.platform")
+    id("com.diffplug.spotless") version "8.1.0"
 }
 
 group = "pl.mjedynak"
 version = "1.5.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    intellijPlatform {
+        intellijIdea("2023.3") {
+            type.set(IntelliJPlatformType.IntellijIdeaCommunity)
+        }
+        bundledPlugin("com.intellij.java")
+    }
+    testImplementation(platform("org.junit:junit-bom:5.14.1"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.mockito:mockito-junit-jupiter:5.10.0")
     testImplementation("org.assertj:assertj-core:3.25.3")
     testImplementation("org.springframework:spring-test:6.1.4")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-intellij {
-    version.set("2023.3")
-    type.set("IC") // Target IDE Platform
-
-    plugins.set(listOf("java"))
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild.set("233.11799.241")
+            untilBuild.set("")
+        }
+    }
 }
 
-tasks {
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-    }
-
-    patchPluginXml {
-        sinceBuild.set("233.11799.241")
-        untilBuild.set("")
-    }
-
-    test {
-        useJUnitPlatform()
-    }
-
-    wrapper {
-        gradleVersion = "8.6"
-    }
+tasks.test {
+    useJUnitPlatform()
 }
 
 spotless {
