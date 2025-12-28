@@ -1,0 +1,13 @@
+[versions]
+# https://github.com/JetBrains/kotlin/releases
+kotlin = "2.3.0"
+
+# https://github.com/pinterest/ktlint/releases
+ktlint-pinterest = "1.8.0"
+
+# https://github.com/jlleitschuh/ktlint-gradle/releases
+ktlint-plugin = "14.0.1"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
