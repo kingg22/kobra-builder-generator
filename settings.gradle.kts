@@ -26,6 +26,5 @@ dependencyResolutionManagement {
     }
 }
 
-
 rootProject.name = "Kobra-Builder"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

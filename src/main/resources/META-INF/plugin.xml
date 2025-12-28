@@ -1,7 +1,7 @@
-<idea-plugin url="https://github.com/mjedynak/Builder-Generator">
+<idea-plugin url="https://github.com/kingg22/kobra-builder-generator">
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>Builder Generator</id>
-    <name>Builder Generator</name>
+    <id>Kobra Builder Generator</id>
+    <name>Kobra Builder Generator</name>
     <description>
         <![CDATA[
          Adds ability to generate builder for a class and switch between them.
@@ -168,16 +168,16 @@
     </change-notes>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor email="m.jedynak [at] gmail.com">Michal Jedynak</vendor>
+    <vendor url="https://github.com/kingg22">Rey Acosta (Kingg22)</vendor>
 
     <actions>
-        <action id="GoToBuilder" class="pl.mjedynak.idea.plugins.builder.action.GoToBuilderAction"
+        <action id="GoToBuilder" class="io.github.kingg22.kobra.builder.action.GoToBuilderAction"
                 text="Builder" description="Goes to/Generates Builder">
             <add-to-group group-id="GoToCodeGroup" anchor="after" relative-to-action="GotoTest"/>
             <add-to-group group-id="EditorPopupMenu.GoTo" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="shift alt B"/>
         </action>
-        <action id="GenerateBuilder" class="pl.mjedynak.idea.plugins.builder.action.GenerateBuilderAction"
+        <action id="GenerateBuilder" class="io.github.kingg22.kobra.builder.action.GenerateBuilderAction"
                 text="Builder" description="Generates/regenerates builder">
             <add-to-group group-id="JavaGenerateGroup1" anchor="before" relative-to-action="GenerateEquals"/>
         </action>
@@ -191,11 +191,11 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <applicationService
-            serviceImplementation="pl.mjedynak.idea.plugins.builder.settings.BuilderGeneratorSettingsState"/>
+            serviceImplementation="io.github.kingg22.kobra.builder.settings.BuilderGeneratorSettingsState"/>
         <applicationConfigurable
                 parentId="tools"
-                instance="pl.mjedynak.idea.plugins.builder.settings.BuilderGeneratorSettingsConfigurable"
-                id="pl.mjedynak.idea.plugins.builder.settings.BuilderGeneratorSettingsConfigurable"
+                instance="io.github.kingg22.kobra.builder.settings.BuilderGeneratorSettingsConfigurable"
+                id="io.github.kingg22.kobra.builder.settings.BuilderGeneratorSettingsConfigurable"
                 displayName="Builder Generation Defaults"/>
         <!--
         <editorActionHandler action="GoToBuilder"
