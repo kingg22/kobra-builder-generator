@@ -11,7 +11,7 @@ public object MemberChooserDialogFactory {
 
     @JvmStatic
     public fun getMemberChooserDialog(
-        elements: List<PsiElementClassMember<*>?>,
+        elements: List<PsiElementClassMember<*>>,
         project: Project,
     ): MemberChooser<PsiElementClassMember<*>> {
         val psiElementClassMembers = elements.toTypedArray()
@@ -25,6 +25,6 @@ public object MemberChooserDialogFactory {
     @Contract("_, _ -> new")
     private fun createNewInstance(
         project: Project,
-        psiElementClassMembers: Array<PsiElementClassMember<*>?>,
+        psiElementClassMembers: Array<PsiElementClassMember<*>>,
     ): MemberChooser<PsiElementClassMember<*>> = MemberChooser(psiElementClassMembers, false, true, project, false)
 }
