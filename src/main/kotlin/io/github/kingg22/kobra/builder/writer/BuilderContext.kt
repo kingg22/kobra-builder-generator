@@ -13,7 +13,7 @@ public data class BuilderContext(
     public val className: String,
     @JvmField public val psiClassFromEditor: PsiClass,
     @JvmField public val methodPrefix: String?,
-    @JvmField public val isInner: Boolean,
+    @JvmField public val isInnerBuilder: Boolean,
     public val hasButMethod: Boolean,
     public val useSingleField: Boolean,
     public val hasAddCopyConstructor: Boolean,
