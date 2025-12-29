@@ -64,7 +64,7 @@ class BuilderWriterComputableTest {
             className = "TestBuilder",
             psiClassFromEditor = srcClass,
             methodPrefix = METHOD_PREFIX,
-            isInner = false,
+            isInnerBuilder = false,
             hasButMethod = false,
             useSingleField = false,
             hasAddCopyConstructor = false,
@@ -96,7 +96,7 @@ class BuilderWriterComputableTest {
     @Test
     fun shouldIncludeCurrentPlaceAsChangePlaceAndCreateInnerBuilder() {
         // given
-        val innerContext = context.copy(isInner = true)
+        val innerContext = context.copy(isInnerBuilder = true)
 
         builderWriterComputable = BuilderWriterComputable(innerContext, builderClass, builderFactory)
 

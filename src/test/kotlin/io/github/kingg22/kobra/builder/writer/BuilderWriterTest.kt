@@ -49,7 +49,7 @@ class BuilderWriterTest {
             className = "TestBuilder",
             psiClassFromEditor = srcClass,
             methodPrefix = "with",
-            isInner = false,
+            isInnerBuilder = false,
             hasButMethod = false,
             useSingleField = false,
             hasAddCopyConstructor = false,

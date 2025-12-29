@@ -21,7 +21,7 @@ internal data class BuilderWriterComputable(
             GuiHelper.includeCurrentPlaceAsChangePlace(context.project)
             existingBuilder?.delete()
             val targetClass: PsiClass
-            if (context.isInner) {
+            if (context.isInnerBuilder) {
                 targetClass = this.innerBuilderPsiClass
                 context.psiClassFromEditor.add(targetClass)
             } else {
