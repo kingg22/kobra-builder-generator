@@ -88,7 +88,7 @@ public class DisplayChoosers(
     }
 
     public companion object {
-        private fun getFieldsToIncludeInBuilder(
+        public fun getFieldsToIncludeInBuilder(
             clazz: PsiClass,
             innerBuilder: Boolean,
             useSingleField: Boolean,
